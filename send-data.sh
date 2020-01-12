@@ -5,7 +5,7 @@
 ## API VALUES
 
 # API Endpoint
-API_ENDPOINT="https://google.com"
+API_ENDPOINT="https://adref.projects.sirodoht.com/pings/"
 # The API ID Field name
 API_ID_FIELD="token"
 # The API ID Value
@@ -23,7 +23,7 @@ API_PING_GATEWAY_FIELD="ping_gateway"
 # The API's pings Google field name
 API_PING_INTERNET_FIELD="ping_internet"
 
-# Filename with pings
+# Filenames with pings
 FILE_PING_LOCAL="pings-local.txt"
 FILE_PING_GATEWAY="pings-gateway.txt"
 FILE_PING_INTERNET="pings-internet.txt"
@@ -95,9 +95,7 @@ function run_pings() {
   ping $INTERNET_IP > $FILE_PING_INTERNET &
   PID_PING_INTERNET=$!
 
-
   sleep $SLEEP_TIME
-
 
   kill $PID_PING_LOCAL > /dev/null 2>&1
   kill $PID_PING_GATEWAY > /dev/null 2>&1
@@ -111,7 +109,7 @@ function run_pings() {
 # Posts the ping results to the API Endpoint
 function post_results() {
   CURL_CMD='curl --header "Content-Type: application/json" --request POST'
-  CURL_CMD="$CURL_CMD --data '{"
+  CURL_CMD="$CURL_CMD -s --data '{"
   CURL_CMD="$CURL_CMD \"$API_ID_FIELD\":\"$API_ID_VALUE\","
   CURL_CMD="$CURL_CMD \"$API_TS_FIELD\":\"$API_TS_VALUE\","
   CURL_CMD="$CURL_CMD \"$API_PING_LOCAL_FIELD\":\"$PINGS_STORE_LOCAL\","
@@ -119,7 +117,9 @@ function post_results() {
   CURL_CMD="$CURL_CMD \"$API_PING_INTERNET_FIELD\":\"$PINGS_STORE_INTERNET\""
   CURL_CMD="$CURL_CMD}' $API_ENDPOINT"
 
-  echo $CURL_CMD
+  # echo $CURL_CMD
+  response=`eval $CURL_CMD`
+  echo $response
 }
 
 # Kills all ping commands, ensures cleanup
