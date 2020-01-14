@@ -1,0 +1,27 @@
+{
+  "name": "adref-ping-agent",
+  "version": "0.0.1",
+  "main": "./app/",
+  "description": "A ping agent for Adref",
+  "homepage": "https://github.com/thanpolas/adref-cli-scripts",
+  "bugs": "https://github.com/thanpolas/adref-cli-scripts/issues",
+  "author": {
+    "name": "Athanasios Polychronakis",
+    "email": "thanpolas@gmail.com"
+  },
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thanpolas/adref-cli-scripts"
+  },
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=10.x <11"
+  },
+  "scripts": {
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
