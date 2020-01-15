@@ -18,10 +18,9 @@
   "engines": {
     "node": ">=10.x <11"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
+    "bluebird": "^3.7.2"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
