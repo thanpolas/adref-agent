@@ -3,3 +3,4 @@ pings-internet.txt
 pings-local.txt
 venv
 test.log
+node-ping-agent/node-modules
