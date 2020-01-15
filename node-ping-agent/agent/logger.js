@@ -2,13 +2,15 @@
  * @fileoverview Stub of a logger.
  */
 
-const logger = {};
+const logger = module.exports = {};
 
-const log = console.log.apply();
+const log = (args) => {
+  console.log.apply(args);
+};
 
-logger.finest = log;
-logger.finer = log;
-logger.fine = log;
-logger.info = log;
-logger.warn = log;
-logger.error = log;
+logger.finest = console.log.bind(console);
+logger.finer = console.log.bind(console);
+logger.fine = console.log.bind(console);
+logger.info = console.log.bind(console);
+logger.warn = console.log.bind(console);
+logger.error = console.log.bind(console);

@@ -4,7 +4,10 @@
 const spawn = require('child_process').spawn;
 
 const Promise = require('bluebird');
+
+
 const log = require('./logger');
+const globals = require('./globals');
 
 const pingLib = module.exports = {};
 
@@ -22,13 +25,13 @@ const pingLib = module.exports = {};
 pingLib.run = async (data) => {
   response = pingLib._getResponse();
   response.ping_ip = data.ping_ip;
-  response.pingParams.wait = data.wait || 0.5;
+  response.pingParams.wait = data.wait || 1;
   response.pingParams.waitTime = data.waitTime || 2500;
   response.pingParams.packets = data.packets || 300;
   response.pingParams.timeout = data.timeout || 4;
 
 
-  const pingArgs = pingLib._preparePingArguments(data.ip);
+  const pingArgs = pingLib._preparePingArguments(response);
 
   const pingResult = await pingLib._invokePing(pingArgs);
 
@@ -74,37 +77,37 @@ pingLib._getResponse = () => {
 /**
  * Prepare the ping arguments.
  *
- * @param {string} ping_ip The IP to ping.
+ * @param {Object} response the Response object.
  * @return {string} The ping's parameters.
  * @private
  */
-pingLib._preparePingArguments = function(ping_ip) {
+pingLib._preparePingArguments = function(response) {
   const pingArgs = [
-    '-c ' + this.response.pingParams.packets, // number of pings
-    '-i ' + this.response.pingParams.wait, // time to wait between pings in seconds
+    '-c ' + response.pingParams.packets, // number of pings
+    '-i ' + response.pingParams.wait, // time to wait between pings in seconds
   ];
 
   // in OSX there's a slight difference in the ping options
   if (globals.isOsx) {
     // ultimate timeout
-    pingArgs.push('-t ' + this.response.pingParams.timeout);
+    pingArgs.push('-t ' + response.pingParams.timeout);
     // Per packet timeout
-    pingArgs.push('-W ' + this.response.pingParams.waitTime);
+    pingArgs.push('-W ' + response.pingParams.waitTime);
   } else {
     // ultimate timeout
-    pingArgs.push('-w ' + this.response.pingParams.timeout);
+    pingArgs.push('-w ' + response.pingParams.timeout);
     // Per packet timeout
-    pingArgs.push('-W ' + this.response.pingParams.waitTime / 1000);
+    pingArgs.push('-W ' + response.pingParams.waitTime / 1000);
   }
 
-  pingArgs = pingArgs.concat([
+  const finalPingArgs = pingArgs.concat([
     // Numeric output only.
     // No attempt will be made to lookup symbolic names for host addresses.
     '-n',
-    ip,
+    response.ping_ip,
   ]);
 
-  return pingArgs;
+  return finalPingArgs;
 };
 
 /**
@@ -118,7 +121,7 @@ pingLib._invokePing = async function(pingArgs) {
   return new Promise(function(resolve, reject) {
     const rawOutput = [];
 
-    log.finer('invokePing() :: Invoking ping with args:', pingArgs);
+    log.fine('invokePing() :: Invoking ping with args:', pingArgs);
 
     const child = spawn('ping', pingArgs);
 
