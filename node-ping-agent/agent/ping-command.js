@@ -14,32 +14,33 @@ const ping = module.exports = {};
 /**
  * Start a ping and stream the results via eventBus.
  *
- * @param {string} id A unique identifier.
  * @param {Object} pingOpts Options for the ping command.
+ *    @param {string} pingOpts.id REQUIRED A unique identifier.
  *    @param {string} pingOpts.pingIp REQUIRED The IP to ping.
  *    @param {number=} pingOpts.waitTime Per packet timeout in seconds.
  * @return {void}
  */
-ping.startPing = async (id, pingOpts) => {
+ping.startPing = async (pingTarget) => {
 
-  pingOpts.waitTime = pingOpts.waitTime || 4;
+  pingTarget.waitTime = pingTarget.waitTime || 4;
 
   // Get arguments for ping based on OS.
   let pingArgs;
    if (isOsx) {
-    pingArgs = ping.preparePingArgumentsOsx(pingOpts);
+    pingArgs = ping.preparePingArgumentsOsx(pingTarget);
    } else {
-    pingArgs = ping.preparePingArgumentsLinux(pingOpts);
+    pingArgs = ping.preparePingArgumentsLinux(pingTarget);
    }
 
-  await ping.invokePing(id, pingArgs)
-    .catch(ping._invokePingErrorHandler);
-
-  eventBus.on(id + '-on_close', async () => {
+  eventBus.on(pingTarget.id + '-on_close', async () => {
     // ping exited, restart.
-    await ping.invokePing(id, pingArgs)
+    await ping.invokePing(pingTarget.id, pingArgs)
       .catch(ping._invokePingErrorHandler);
   });
+
+  await ping.invokePing(pingTarget.id, pingArgs)
+    .catch(ping._invokePingErrorHandler);
+
 };
 
 /**
@@ -54,17 +55,17 @@ ping.stopPing = (id) => {
 /**
  * Prepare the ping arguments when on OSX.
  *
- * @param {Object} pingOpts Options for the ping command.
+ * @param {Object} pingTarget Options for the ping command.
  * @return {string} The ping's parameters.
  */
-ping.preparePingArgumentsOsx = (pingOpts) => {
+ping.preparePingArgumentsOsx = (pingTarget) => {
   const pingArgs = [
     // Per packet timeout
-    '-W ' + pingOpts.waitTime,
+    '-W ' + pingTarget.waitTime,
     // Numeric output only.
     // No attempt will be made to lookup symbolic names for host addresses.
     '-n',
-    pingOpts.pingIp,
+    pingTarget.pingIp,
   ];
 
   return pingArgs;
@@ -73,18 +74,18 @@ ping.preparePingArgumentsOsx = (pingOpts) => {
 /**
  * Prepare the ping arguments when on Linux.
  *
- * @param {Object} pingOpts Options for the ping command.
+ * @param {Object} pingTarget Options for the ping command.
  * @return {string} The ping's parameters.
  */
-ping.preparePingArgumentsLinux = (pingOpts) => {
+ping.preparePingArgumentsLinux = (pingTarget) => {
   const pingArgs = [
     // Per packet timeout, in Linux it's in milliseconds.
-    '-W ' + (pingOpts.waitTime / 1000),
+    '-W ' + (pingTarget.waitTime / 1000),
 
     // Numeric output only.
     // No attempt will be made to lookup symbolic names for host addresses.
     '-n',
-    pingOpts.pingIp,
+    pingTarget.pingIp,
   ];
 
   return pingArgs;
@@ -105,8 +106,16 @@ ping.invokePing = async function(id, pingArgs) {
 
     const child = spawn('ping', pingArgs);
 
+    let resolved = false;
+
     child.stdout.on('data', function(buffer) {
-      eventBus.emit(id + '-on_stdout', buffer.toString());
+      if (!resolved) {
+        resolved = true;
+        resolve();
+      }
+      const emitKey = id + '-on_stdout';
+
+      eventBus.emit(emitKey, buffer.toString());
     });
 
     child.stderr.on('data', function(buffer) {
