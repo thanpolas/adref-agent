@@ -19,7 +19,7 @@ const pingLib = module.exports = {};
  *   @param {number=} timeout Ultimate timeout in seconds, default 8.
  * @return {Promise} A Promise.
  */
-pingLib.run = async function(data) {
+pingLib.run = async (data) => {
   response = pingLib._getResponse();
   response.ping_ip = data.ping_ip;
   response.pingParams.wait = data.wait || 0.5;
@@ -43,30 +43,32 @@ pingLib.run = async function(data) {
  * @return {Object}
  * @private
  */
-pingLib._getResponse = function () {
-  pingParams: {
-    wait: NaN,
-    waitTime: NaN,
-    timeout: NaN,
-    packets: NaN,
-  },
-  ping_ip: '',
-  scanRealId: '',
-  latencyResults: {
-    rawOutput: '',
-    packetsSent: 0,
-    packetsReceived: 0,
-    min: 0,
-    avg: 0,
-    max: 0,
-    stddev: 0,
-    mdev: 0,
-    time: 0,
-    // Packet Loss in a string 0%
-    packetLoss: '',
-    // Packet Loss in Float
-    packetLossFlt: 0,
-  },
+pingLib._getResponse = () => {
+  return {
+    pingParams: {
+      wait: NaN,
+      waitTime: NaN,
+      timeout: NaN,
+      packets: NaN,
+    },
+    ping_ip: '',
+    scanRealId: '',
+    latencyResults: {
+      rawOutput: '',
+      packetsSent: 0,
+      packetsReceived: 0,
+      min: 0,
+      avg: 0,
+      max: 0,
+      stddev: 0,
+      mdev: 0,
+      time: 0,
+      // Packet Loss in a string 0%
+      packetLoss: '',
+      // Packet Loss in Float
+      packetLossFlt: 0,
+    },
+  };
 };
 
 /**
