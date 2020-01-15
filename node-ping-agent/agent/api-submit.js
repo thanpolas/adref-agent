@@ -5,6 +5,7 @@
 const axios = require('axios');
 
 const globals = require('./globals');
+const log = require('./logger');
 
 const apiSubmit = module.exports = {};
 
@@ -23,5 +24,17 @@ apiSubmit.submit = (pingTargets, copyData) => {
     targets: copyData,
   };
 
-  console.log('PAYLOAD:\n', JSON.stringify(payload));
+  const response = await axios.post(globals.apiEndpoint, payload)
+    .catch(apiSubmit.errorHandler);
+
+  log('apiSubmit() :: Submitted API Payload, response:', response.body);
+};
+
+/**
+ * The Error handler for the API submission.
+ *
+ * @param {Error} error The error object.
+ */
+apiSubmit.errorHandler = (error) => {
+  console.error('Error:', error);
 };
