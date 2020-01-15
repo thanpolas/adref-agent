@@ -3,9 +3,6 @@
  */
 const spawn = require('child_process').spawn;
 
-const Promise = require('bluebird');
-
-
 const log = require('./logger');
 const globals = require('./globals');
 
@@ -57,42 +54,6 @@ pingLib._getResponse = () => {
     ping_ip: '',
     pingItems: [],
   };
-};
-
-/**
- * Prepare the ping arguments.
- *
- * @param {Object} response the Response object.
- * @return {string} The ping's parameters.
- * @private
- */
-pingLib._preparePingArguments = function(response) {
-  const pingArgs = [
-    '-c ' + response.pingParams.packets, // number of pings
-    '-i ' + response.pingParams.wait, // time to wait between pings in seconds
-  ];
-
-  // in OSX there's a slight difference in the ping options
-  if (globals.isOsx) {
-    // ultimate timeout
-    pingArgs.push('-t ' + response.pingParams.timeout);
-    // Per packet timeout
-    pingArgs.push('-W ' + response.pingParams.waitTime);
-  } else {
-    // ultimate timeout
-    pingArgs.push('-w ' + response.pingParams.timeout);
-    // Per packet timeout
-    pingArgs.push('-W ' + response.pingParams.waitTime / 1000);
-  }
-
-  const finalPingArgs = pingArgs.concat([
-    // Numeric output only.
-    // No attempt will be made to lookup symbolic names for host addresses.
-    '-n',
-    response.ping_ip,
-  ]);
-
-  return finalPingArgs;
 };
 
 /**
