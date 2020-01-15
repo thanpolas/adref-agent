@@ -6,6 +6,7 @@ const { startPing } = require('./ping-command');
 const eventBus = require('./event-bus');
 
 const { processPingResults } = require('./ping-library');
+const apiModel = require('./model-api');
 
 const agent = module.exports = {};
 
@@ -18,6 +19,8 @@ agent.start = async () => {
   const pingTargets = await agent.getPingTargets();
 
   agent.setupEventHandlers(pingTargets);
+
+  apiModel.setup(pingTargets);
 
   const promises = pingTargets.map((pingTarget) => {
     return startPing(pingTarget);
@@ -63,5 +66,9 @@ agent.setupEventHandlers = (pingTargets) => {
 agent.onStdout = (pingTarget, message) => {
   const pingData = processPingResults(message);
 
-  console.log('pingData:', pingData);
+  if (pingData === false) {
+    return;
+  }
+
+  eventBus.emit(pingTarget.id + '-ping', pingTarget, pingData);
 };

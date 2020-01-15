@@ -23,6 +23,10 @@ pingLib.processPingResults = function (pingLine) {
   const parts = pingLine.split(' ');
 
   const pingObj = pingLib._getPingObject();
+
+  const dt = new Date();
+  pingObj.ping_timestamp = dt.toISOString();
+
   pingObj.bytes = parts[0];
 
   // IP has a colon at the end so remove last char.
@@ -44,6 +48,7 @@ pingLib.processPingResults = function (pingLine) {
  */
 pingLib._getPingObject = () => {
   return {
+    ping_timestamp: '',
     bytes: NaN,
     target_ip: '',
     icmp_seq: NaN,
