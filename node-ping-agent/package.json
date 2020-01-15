@@ -21,7 +21,9 @@
   "scripts": {
     "start": "node ./agent/"
   },
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.19.1"
+  },
   "devDependencies": {
     "eslint": "6.5.1",
     "eslint-config-airbnb-base": "14.0.0",
