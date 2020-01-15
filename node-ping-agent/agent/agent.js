@@ -5,6 +5,8 @@
 const { startPing } = require('./ping-command');
 const eventBus = require('./event-bus');
 
+const { processPingResults } = require('./ping-library');
+
 const agent = module.exports = {};
 
 /**
@@ -59,5 +61,7 @@ agent.setupEventHandlers = (pingTargets) => {
  * @param {string} message The ping message.
  */
 agent.onStdout = (pingTarget, message) => {
-  console.log(pingTarget, message);
+  const pingData = processPingResults(message);
+
+  console.log('pingData:', pingData);
 };
