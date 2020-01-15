@@ -27,15 +27,15 @@ pingLib.run = async (data) => {
   response.ping_ip = data.ping_ip;
   response.pingParams.wait = data.wait || 1;
   response.pingParams.waitTime = data.waitTime || 2500;
-  response.pingParams.packets = data.packets || 300;
-  response.pingParams.timeout = data.timeout || 4;
+  response.pingParams.packets = data.packets || 4;
+  response.pingParams.timeout = data.timeout || 5;
 
 
   const pingArgs = pingLib._preparePingArguments(response);
 
   const pingResult = await pingLib._invokePing(pingArgs);
 
-  await pingLib_processPingResults(pingResult, response);
+  await pingLib._processPingResults(pingResult, response);
 
   return response;
 };
@@ -55,22 +55,7 @@ pingLib._getResponse = () => {
       packets: NaN,
     },
     ping_ip: '',
-    scanRealId: '',
-    latencyResults: {
-      rawOutput: '',
-      packetsSent: 0,
-      packetsReceived: 0,
-      min: 0,
-      avg: 0,
-      max: 0,
-      stddev: 0,
-      mdev: 0,
-      time: 0,
-      // Packet Loss in a string 0%
-      packetLoss: '',
-      // Packet Loss in Float
-      packetLossFlt: 0,
-    },
+    pingItems: [],
   };
 };
 
@@ -165,7 +150,42 @@ pingLib._invokePing = async function(pingArgs) {
  * @param {string} results Raw Ping Results.
  */
 pingLib._processPingResults = function (results_raw, response) {
-  log.info('RESULTS:', results_raw)
-  response.latencyResults.rawOutput = results;
+  const lines = results_raw.split('\n');
 
+  // The last lines are statistics we don't care about.
+  lines.splice(-5, 5);
+
+  // The first line we also don't care about.
+  lines.splice(0, 1);
+
+  lines.map((line) => {
+    if (!line) {
+      return;
+    }
+
+    const parts = line.split(' ');
+
+    const pingObj = pingLib._getPingObject();
+    pingObj.bytes = parts[0];
+
+    // IP has a colon at the end so remove last char.
+    pingObj.target_ip = parts[3].slice(0, -1);
+
+    // ICMP Sequence starts with "icmp_seq=3" so remove first chars
+    pingObj.icmp_seq = parseInt(parts[4].substring(9), 10);
+
+    // pingtime is "time=3.430" so remove first chars.
+    pingObj.time = parseFloat(parts[6].substring(5));
+
+    response.pingItems.push(pingObj);
+  });
+};
+
+pingLib._getPingObject = () => {
+  return {
+    bytes: NaN,
+    target_ip: '',
+    icmp_seq: NaN,
+    time: 0.0,
+  };
 };
