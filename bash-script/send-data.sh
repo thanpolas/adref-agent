@@ -9,7 +9,7 @@ API_ENDPOINT="https://adref.projects.sirodoht.com/pings/"
 # The API ID Field name
 API_ID_FIELD="token"
 # The API ID Value
-API_ID_VALUE="value888"
+API_ID_VALUE="thanpolas-raspberry1"
 
 # The API's timestamp field name
 API_TS_FIELD="ping_timestamp"
@@ -29,7 +29,7 @@ FILE_PING_GATEWAY="pings-gateway.txt"
 FILE_PING_INTERNET="pings-internet.txt"
 
 # Time to sleep between sending report in seconds
-SLEEP_TIME=2
+SLEEP_TIME=10
 
 # The local router's IP
 LOCAL_IP="192.168.1.1"
