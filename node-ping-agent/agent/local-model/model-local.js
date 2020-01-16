@@ -166,7 +166,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
   let pingFailsFound = 0;
 
   const dataDeviation = spikeData.map((pingTime) => {
-    if (isNaN(pingTime)) {
+    if (pingTime === 0) {
       pingFailsFound++;
       return 0;
     }
@@ -242,7 +242,7 @@ localModel.calculateJitter = (data, dataBaseline) => {
       return 0;
     }
 
-    if (isNaN(pingTime)) {
+    if (pingTime === 0) {
       return 0;
     }
 

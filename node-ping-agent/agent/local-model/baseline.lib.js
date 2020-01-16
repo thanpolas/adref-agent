@@ -11,7 +11,7 @@ const baseline = module.exports = {};
  */
 baseline.baseline = (data) => {
   const totalValue = data.reduce((total, value) => {
-    if (isNaN(value)) {
+    if (value === 0) {
       return 0;
     }
     return total + value;
