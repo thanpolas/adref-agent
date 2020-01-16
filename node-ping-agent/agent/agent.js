@@ -40,9 +40,20 @@ agent.getPingTargets = async () => {
   const pingTargets = [];
 
   pingTargets.push({
+    id: 'local',
+    pingIp: '192.168.1.1',
+  });
+
+  pingTargets.push({
+    id: 'gateway',
+    pingIp: '100.96.185.33',
+  });
+
+  pingTargets.push({
     id: 'internet',
     pingIp: '8.8.8.8',
   });
+
 
   return pingTargets;
 };
