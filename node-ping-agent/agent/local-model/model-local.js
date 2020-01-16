@@ -116,10 +116,10 @@ localModel.calculateQuality = () => {
 
     const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2)
 
-    log.info(`calculateQuality() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
+    log.info(`cq() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
     'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
     'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
-    `(${baselineDiff}%)`, '\n\n');
+    `(${baselineDiff}%)`);
 
     const severity = Math.max(spikeSeverity, jitterSeverity);
     led.setState(pingTarget.id, severity);
