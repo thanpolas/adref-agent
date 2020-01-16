@@ -24,6 +24,8 @@ apiSubmit.submit = (pingTargets, copyData) => {
     targets: copyData,
   };
 
+  // console.log('PAYLOAD:', JSON.stringify(payload));
+
   // const response = await axios.post(globals.apiEndpoint, payload)
   //   .catch(apiSubmit.errorHandler);
 

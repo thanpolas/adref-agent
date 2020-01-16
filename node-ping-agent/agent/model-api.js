@@ -4,6 +4,7 @@
  */
 const eventBus = require('./event-bus');
 const { submit } = require('./api-submit');
+const globals = require('./globals');
 
 const apiModel = module.exports = {};
 
@@ -25,7 +26,7 @@ apiModel.state = {
   masterId: '',
 
   // Define every how many pings to submit to the API.
-  maxPings: 10,
+  maxPings: globals.apiSubmitPingsInterval,
 };
 
 /**

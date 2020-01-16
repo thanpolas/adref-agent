@@ -16,16 +16,23 @@ const pingLib = module.exports = {};
  */
 pingLib.processPingResults = function (pingLine) {
 
+  // Check if ping headers or bogus data
   if (!pingLib.isValidPingLine(pingLine)) {
     return false;
   }
-
-  const parts = pingLine.split(' ');
 
   const pingObj = pingLib._getPingObject();
 
   const dt = new Date();
   pingObj.ping_timestamp = dt.toISOString();
+
+  // Check if ping timeout or other failure
+  if (pingLine.substring(0, 2) !== '64') {
+    pingObj.ping_success = false;
+    return pingObj;
+  }
+
+  const parts = pingLine.split(' ');
 
   pingObj.bytes = parts[0];
 
@@ -52,7 +59,8 @@ pingLib._getPingObject = () => {
     bytes: NaN,
     target_ip: '',
     icmp_seq: NaN,
-    time: 0.0,
+    time: NaN,
+    ping_success: true,
   };
 };
 
