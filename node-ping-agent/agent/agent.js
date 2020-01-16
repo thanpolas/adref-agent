@@ -7,6 +7,7 @@ const eventBus = require('./event-bus');
 
 const { processPingResults } = require('./ping-library');
 const apiModel = require('./model-api');
+const localModel = require('./local-model/model-local');
 
 const agent = module.exports = {};
 
@@ -21,6 +22,7 @@ agent.start = async () => {
   agent.setupEventHandlers(pingTargets);
 
   apiModel.setup(pingTargets);
+  localModel.setup(pingTargets);
 
   const promises = pingTargets.map((pingTarget) => {
     return startPing(pingTarget);

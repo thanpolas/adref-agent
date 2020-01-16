@@ -4,13 +4,13 @@
 
 const logger = module.exports = {};
 
+const noop = () => {};
+
 const log = (args) => {
   console.log.apply(args);
 };
 
-logger.finest = console.log.bind(console);
-logger.finer = console.log.bind(console);
-logger.fine = console.log.bind(console);
+logger.debug = noop;
 logger.info = console.log.bind(console);
 logger.warn = console.log.bind(console);
 logger.error = console.log.bind(console);

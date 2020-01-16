@@ -2,6 +2,13 @@
 
 Original source: https://www.sapling.com/7280431/calculate-baseline
 
+Data: [100, 150, 200]
+Average: 150
+Standard Deviation: 50
+Standard Error: 28.9
+Low: 92.2
+High: 207.8
+
 ## Step 1
 
 Maintain a record of measurements with as many data points as feasible. The accuracy of your baseline increases as the number of data points increases. In general, the more data you collect, the greater the accuracy achieved.

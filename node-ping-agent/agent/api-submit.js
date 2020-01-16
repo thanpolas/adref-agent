@@ -24,10 +24,10 @@ apiSubmit.submit = (pingTargets, copyData) => {
     targets: copyData,
   };
 
-  const response = await axios.post(globals.apiEndpoint, payload)
-    .catch(apiSubmit.errorHandler);
+  // const response = await axios.post(globals.apiEndpoint, payload)
+  //   .catch(apiSubmit.errorHandler);
 
-  log('apiSubmit() :: Submitted API Payload, response:', response.body);
+  // log('apiSubmit() :: Submitted API Payload, response:', response.body);
 };
 
 /**
