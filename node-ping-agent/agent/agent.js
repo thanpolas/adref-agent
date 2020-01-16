@@ -83,5 +83,9 @@ agent.onStdout = (pingTarget, message) => {
     return;
   }
 
+  if (pingData.ping_success === false) {
+    pingData.target_ip = pingTarget.pingIp;
+  }
+
   eventBus.emit(pingTarget.id + '-ping', pingTarget, pingData);
 };

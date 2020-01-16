@@ -11,8 +11,17 @@ const baseline = module.exports = {};
  */
 baseline.baseline = (data) => {
   const totalValue = data.reduce((total, value) => {
+    if (isNaN(value)) {
+      return 0;
+    }
     return total + value;
   }, 0);
+
+  const response = baseline.getResponseStruct();
+
+  if (totalValue === 0) {
+    return response;
+  }
 
   const average = totalValue / data.length;
 
@@ -24,15 +33,24 @@ baseline.baseline = (data) => {
 
   const stdError = stdDeviation / Math.sqrt(data.length);
 
-  const stdErrorTimesTwo = stdError * 2;
+  response.average = average;
+  response.stdError = stdError * 2;
+  response.high = average + response.stdError;
+  response.low = average - response.stdError;
 
-  const high = average + stdErrorTimesTwo;
-  const low = average - stdErrorTimesTwo;
+  return response;
+};
 
+/**
+ * Get a new response structure object.
+ *
+ * @return {Object}
+ */
+baseline.getResponseStruct = () => {
   return {
-    average,
-    high,
-    low,
-    stdError: stdErrorTimesTwo,
+    average: 0.0,
+    high: 0.0,
+    low: 0.0,
+    stdError: 0.0,
   };
 };

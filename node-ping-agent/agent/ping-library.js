@@ -15,7 +15,6 @@ const pingLib = module.exports = {};
  * @return {Object} A Ping object.
  */
 pingLib.processPingResults = function (pingLine) {
-
   // Check if ping headers or bogus data
   if (!pingLib.isValidPingLine(pingLine)) {
     return false;
@@ -56,10 +55,10 @@ pingLib.processPingResults = function (pingLine) {
 pingLib._getPingObject = () => {
   return {
     ping_timestamp: '',
-    bytes: NaN,
+    bytes: 0,
     target_ip: '',
-    icmp_seq: NaN,
-    time: NaN,
+    icmp_seq: 0,
+    time: 0,
     ping_success: true,
   };
 };

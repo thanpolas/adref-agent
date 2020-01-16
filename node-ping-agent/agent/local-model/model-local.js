@@ -166,7 +166,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
   let pingFailsFound = 0;
 
   const dataDeviation = spikeData.map((pingTime) => {
-    if (isNaN(pingTime.ping_success)) {
+    if (isNaN(pingTime)) {
       pingFailsFound++;
       return 0;
     }
