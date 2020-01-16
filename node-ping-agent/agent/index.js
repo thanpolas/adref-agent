@@ -2,19 +2,11 @@
  * Ping Agent, launches and streams ping commands.
  */
 
-const pingLib = require('./ping-library');
+const { start } = require('./agent');
 
 const boot = async () => {
-  try {
-    const response = await pingLib.run({
-      ping_ip: '8.8.8.8',
-    });
-  } catch (ex) {
-    console.error('Failed:', ex);
-  }
-
-  console.log('done', response);
+  await start();
+  console.log('done');
 };
 
 boot();
-
