@@ -41,3 +41,15 @@ led.state = {
   internet: led.MODES.NULL,
 };
 
+/**
+ * Set the state of an LED.
+ *
+ * @param {led.TYPES} type LED type.
+ * @param {led.MODES} mode The LED mode to set.
+ */
+led.setState = (type, mode) => {
+
+};
+
+
+

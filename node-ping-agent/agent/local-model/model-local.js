@@ -5,6 +5,7 @@ const eventBus = require('../event-bus');
 const log = require('../logger');
 const globals = require('../globals');
 const { baseline } = require('./baseline.lib');
+const led = require('./led-controller');
 
 const localModel = module.exports = {};
 
@@ -85,31 +86,44 @@ localModel.onPing = (pingTarget, pingData) => {
  *
  */
 localModel.calculateQuality = () => {
+  const KNOWN_TARGETS = ['local', 'gateway', 'internet'];
+
   // shortcut assign
   const state = localModel.state;
   const stores = state.stores;
   const pingTargets = state.pingTargets;
 
   // pick the first stored ping target to evaluate dataset length.
-  const pingTarget = pingTargets[0];
+  const pingTargetSample = pingTargets[0];
 
-  if (stores[pingTarget.id].length < 5) {
+  if (stores[pingTargetSample.id].length < 5) {
     // not enough samples
     return;
   }
 
-  const data = stores[pingTarget.id].map((pingItem) => pingItem.time);
+  pingTargets.forEach((pingTarget) => {
+    if (KNOWN_TARGETS.indexOf(pingTarget.id) === -1) {
+      // unknown target
+      return;
+    }
 
-  const dataBaseline = baseline(data);
+    const data = stores[pingTarget.id].map((pingItem) => pingItem.time);
 
+    const dataBaseline = baseline(data);
 
-  const spikeSeverity = localModel.calculateSpike(data, dataBaseline);
-  const jitterSeverity = localModel.calculateJitter(data, dataBaseline);
+    const spikeSeverity = localModel.calculateSpike(data, dataBaseline);
+    const jitterSeverity = localModel.calculateJitter(data, dataBaseline);
 
-  log.info('calculateQuality() :: spikeSev:', spikeSeverity,
-  'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
-  'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
-  '(Diff:', ((dataBaseline.high / dataBaseline.average) - 1).toFixed(2), '%)\n\n');
+    const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2)
+
+    log.info(`calculateQuality() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
+    'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
+    'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
+    `(${baselineDiff}%)`, '\n\n');
+
+    const severity = Math.max(spikeSeverity, jitterSeverity);
+    led.setState(pingTarget.id, severity);
+  });
 };
 
 /**
@@ -139,9 +153,6 @@ localModel.calculateSpike = (data, dataBaseline) => {
 
     return (pingTime / dataBaseline.high) - 1;
   });
-
-  console.log('dataDeviation:', dataDeviation);
-
 
   return dataDeviation.reduce((severity, deviation) => {
     // lax conditional on purpose
