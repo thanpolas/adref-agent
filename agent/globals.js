@@ -1,6 +1,7 @@
 /**
  * @fileoverview Global constants.
  */
+const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
@@ -38,5 +39,4 @@ globals.apiSubmitPingsInterval = userConfig.apiSubmitPingsInterval || 300;
 // Local watcher that controls the LEDs calculation interval in milliseconds.
 globals.localWatcherInterval = userConfig.localWatcherInterval || 5000;
 
-globals.isOsx = true;
-
+globals.isOsx = os.platform() === 'darwin';
