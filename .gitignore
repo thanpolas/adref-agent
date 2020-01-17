@@ -3,5 +3,5 @@ pings-internet.txt
 pings-local.txt
 venv
 test.log
-
 .vscode
+node_modules

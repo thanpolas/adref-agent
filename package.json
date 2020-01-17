@@ -6,7 +6,7 @@
   "homepage": "https://github.com/thanpolas/adref-cli-scripts",
   "bugs": "https://github.com/thanpolas/adref-cli-scripts/issues",
   "author": {
-    "name": "Athanasios Polychronakis",
+    "name": "Thanasis Polychronakis",
     "email": "thanpolas@gmail.com"
   },
   "contributors": [],
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/thanpolas/adref-cli-scripts"
   },
-  "license": "UNLICENSED",
+  "license": "BSD",
   "engines": {
     "node": ">=10.x <11"
   },
