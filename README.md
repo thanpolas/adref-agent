@@ -10,7 +10,7 @@ A ping agent written in node.js for the Adref service.
 ### 1. Get the Agent
 
 ```
-git clone https://github.com/thanpolas/adref-cli-scripts.git
+git clone https://github.com/thanpolas/adref-agent.git
 ```
 
 ### 2. Build The Agent

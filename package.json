@@ -3,8 +3,8 @@
   "version": "0.0.2",
   "main": "./agent/",
   "description": "A ping agent for Adref",
-  "homepage": "https://github.com/thanpolas/adref-cli-scripts",
-  "bugs": "https://github.com/thanpolas/adref-cli-scripts/issues",
+  "homepage": "https://github.com/thanpolas/adref-agent",
+  "bugs": "https://github.com/thanpolas/adref-agent/issues",
   "author": {
     "name": "Thanasis Polychronakis",
     "email": "thanpolas@gmail.com"
@@ -12,7 +12,7 @@
   "contributors": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/thanpolas/adref-cli-scripts"
+    "url": "https://github.com/thanpolas/adref-agent"
   },
   "license": "BSD",
   "engines": {
