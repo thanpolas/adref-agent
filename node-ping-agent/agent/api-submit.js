@@ -17,17 +17,19 @@ const apiSubmit = module.exports = {};
  * @param {Array} pingTargets The ping targets.
  * @param {Object} copyData The data to submit.
  */
-apiSubmit.submit = (pingTargets, copyData) => {
+apiSubmit.submit = async (pingTargets, copyData) => {
 
   const payload = {
     token: globals.token,
     targets: copyData,
   };
 
-  // const response = await axios.post(globals.apiEndpoint, payload)
-  //   .catch(apiSubmit.errorHandler);
+  // console.log('PAYLOAD:', JSON.stringify(payload));
 
-  // log('apiSubmit() :: Submitted API Payload, response:', response.body);
+  const response = await axios.post(globals.apiEndpoint, payload)
+    .catch(apiSubmit.errorHandler);
+
+  log.info('apiSubmit() :: Submitted API Payload, response:', response.data);
 };
 
 /**

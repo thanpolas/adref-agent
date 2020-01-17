@@ -17,12 +17,9 @@ const ping = module.exports = {};
  * @param {Object} pingOpts Options for the ping command.
  *    @param {string} pingOpts.id REQUIRED A unique identifier.
  *    @param {string} pingOpts.pingIp REQUIRED The IP to ping.
- *    @param {number=} pingOpts.waitTime Per packet timeout in seconds.
  * @return {void}
  */
 ping.startPing = async (pingTarget) => {
-
-  pingTarget.waitTime = pingTarget.waitTime || 4;
 
   // Get arguments for ping based on OS.
   let pingArgs;
@@ -60,9 +57,6 @@ ping.stopPing = (id) => {
  */
 ping.preparePingArgumentsOsx = (pingTarget) => {
   const pingArgs = [
-    // Per packet timeout
-    '-W ' + pingTarget.waitTime,
-    // Numeric output only.
     // No attempt will be made to lookup symbolic names for host addresses.
     '-n',
     pingTarget.pingIp,
@@ -79,9 +73,6 @@ ping.preparePingArgumentsOsx = (pingTarget) => {
  */
 ping.preparePingArgumentsLinux = (pingTarget) => {
   const pingArgs = [
-    // Per packet timeout, in Linux it's in milliseconds.
-    '-W ' + (pingTarget.waitTime / 1000),
-
     // Numeric output only.
     // No attempt will be made to lookup symbolic names for host addresses.
     '-n',
@@ -113,6 +104,7 @@ ping.invokePing = async function(id, pingArgs) {
         resolved = true;
         resolve();
       }
+
       const emitKey = id + '-on_stdout';
 
       eventBus.emit(emitKey, buffer.toString());

@@ -7,14 +7,14 @@
 
 const led = module.exports = {};
 
-/** @type {Enum} Available LEDs */
+/** @enum {string} Available LEDs */
 led.TYPES = {
   LOCAL: 'local',
   GATEWAY: 'gateway',
   INTERNET: 'internet',
 };
 
-/** @type {Enum} Available LED Modes for each LED */
+/** @enum {string Available LED Modes for each LED */
 led.MODES = {
   // Null state when still initializing or not enough data collected.
   NULL: 'null',

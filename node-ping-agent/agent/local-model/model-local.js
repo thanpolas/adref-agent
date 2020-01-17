@@ -9,6 +9,20 @@ const led = require('./led-controller');
 
 const localModel = module.exports = {};
 
+/** @enum {number} The kind of severities */
+const SEV = localModel.SEV = {
+  // All good.
+  'SEV0': 0,
+  // Low Severity
+  'SEV1': 1,
+  // Medium Severity
+  'SEV2': 2,
+  // High Severity
+  'SEV3': 3,
+  // No Service
+  'SEV4': 4,
+};
+
 /**
  * The state of the local model (model's store is memory).
  *
@@ -144,9 +158,18 @@ localModel.calculateSpike = (data, dataBaseline) => {
   const HIGH = 0.65;
   const LOW = 0.3;
 
-  const spikeData = data.slice(-5);
+  // Get the sample count
+  const pingSample = globals.spikePingSample;
+
+  const spikeData = data.slice(-1 * pingSample);
+
+  let pingFailsFound = 0;
 
   const dataDeviation = spikeData.map((pingTime) => {
+    if (pingTime === 0) {
+      pingFailsFound++;
+      return 0;
+    }
     if (pingTime < dataBaseline.high) {
       return 0;
     }
@@ -154,21 +177,38 @@ localModel.calculateSpike = (data, dataBaseline) => {
     return (pingTime / dataBaseline.high) - 1;
   });
 
+  // Check for ping timeouts
+  if (pingFailsFound) {
+    const failsPercent = pingFailsFound / pingSample;
+    if (pingFailsFound === pingSample) {
+      return SEV.SEV4;
+    }
+
+    if (failsPercent > 0.65) {
+      return SEV.SEV3;
+    }
+
+    if (failsPercent > 0.3) {
+      return SEV.SEV2;
+    }
+  }
+
+  // Calculate severity
   return dataDeviation.reduce((severity, deviation) => {
     // lax conditional on purpose
     if (deviation == 0) {
-      return 0;
+      return SEV.SEV0;
     }
     if (deviation <= LOW && severity >= 1) {
-      return 1;
+      return SEV.SEV1;
     }
 
     if (deviation <= HIGH && deviation > LOW && severity >= 2) {
-      return 2;
+      return SEV.SEV2;
     }
 
     if (deviation > HIGH && severity >= 3) {
-      return 3;
+      return SEV.SEV3;
     }
 
     return severity;
@@ -193,8 +233,16 @@ localModel.calculateJitter = (data, dataBaseline) => {
   const HIGH = 0.65;
   const LOW = 0.3;
 
+  if (!data.length) {
+    return SEV.SEV0;
+  }
+
   const totalDifference = data.reduce((total, pingTime, index) => {
     if (index === 0) {
+      return 0;
+    }
+
+    if (pingTime === 0) {
       return 0;
     }
 
@@ -205,6 +253,10 @@ localModel.calculateJitter = (data, dataBaseline) => {
       return diff;
     }
   });
+
+  if (totalDifference === 0) {
+    return SEV.SEV0;
+  }
 
   const jitter = totalDifference / data.length;
 
@@ -232,17 +284,17 @@ localModel.calculateJitter = (data, dataBaseline) => {
   log.debug('Jitter calculated:', jitter);
 
   if (jitter <= SEV0) {
-    return 0;
+    return SEV.SEV0;
   }
 
   if (jitter > SEV0 && jitter <= SEV1) {
-    return 1;
+    return SEV.SEV1;
   }
 
   if (jitter > SEV1 && jitter <= SEV2) {
-    return 2;
+    return SEV.SEV2;
   }
   if (jitter > SEV2) {
-    return 3;
+    return SEV.SEV3;
   }
 };
