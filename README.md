@@ -2,8 +2,11 @@
 
 A ping agent written in node.js for the Adref service.
 
-## Install
+## Still Work In Progress
 
+This is actively being worked on, don't this at home (yet).
+
+## Install
 
 ## Documentation
 
@@ -37,11 +40,19 @@ You may additionally define the following keys for more advanced control:
     to submit to the API.
 * `localWatcherInterval` **{integer}** Default: 5000, Local watcher that 
     controls the LEDs calculation interval in milliseconds.
+
+### 4. Install System Dependencies
+
+The Neopixel python driver need to be pre-installed... The easiest way to get
+the driver installed is to use the Unicorn HAT drivers install script... see the
+<a href="http://learn.pimoroni.com/tutorial/unicorn-hat/getting-started-with-unicorn-hat" target="_new">
+Pimoroni Getting Started with Unicorn HAT</a> page.
+
+    curl -sS get.pimoroni.com/unicornhat | bash
     
 ## Releasing
 
 Just push to master for now ¯\_(ツ)_/¯.
-
 
 ## Release History
 

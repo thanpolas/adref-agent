@@ -5,22 +5,21 @@ const eventBus = require('../event-bus');
 const log = require('../logger');
 const globals = require('../globals');
 const { baseline } = require('./baseline.lib');
-const led = require('./led-controller');
 
 const localModel = module.exports = {};
 
 /** @enum {number} The kind of severities */
 const SEV = localModel.SEV = {
   // All good.
-  'SEV0': 0,
+  SEV0: 0,
   // Low Severity
-  'SEV1': 1,
+  SEV1: 1,
   // Medium Severity
-  'SEV2': 2,
+  SEV2: 2,
   // High Severity
-  'SEV3': 3,
+  SEV3: 3,
   // No Service
-  'SEV4': 4,
+  SEV4: 4,
 };
 
 /**
@@ -50,8 +49,8 @@ localModel.state = {
  */
 localModel.setup = (pingTargets) => {
   // shortcut assign
-  const state = localModel.state;
-  const stores = state.stores;
+  const { state } = localModel;
+  const { stores } = state;
 
   state.pingTargets = pingTargets;
 
@@ -73,7 +72,7 @@ localModel.setup = (pingTargets) => {
  * @param {Object} pingTarget The ping target object.
  */
 localModel.setupEventHandlers = (pingTarget) => {
-  eventBus.on(pingTarget.id + '-ping', localModel.onPing);
+  eventBus.on(`${pingTarget.id}-ping`, localModel.onPing);
 };
 
 /**
@@ -83,7 +82,7 @@ localModel.setupEventHandlers = (pingTarget) => {
  * @param {Object} pingData The ping data object.
  */
 localModel.onPing = (pingTarget, pingData) => {
-  const state = localModel.state;
+  const { state } = localModel;
   const pingStore = state.stores[pingTarget.id];
 
   pingStore.push(pingData);
@@ -103,9 +102,8 @@ localModel.calculateQuality = () => {
   const KNOWN_TARGETS = ['local', 'gateway', 'internet'];
 
   // shortcut assign
-  const state = localModel.state;
-  const stores = state.stores;
-  const pingTargets = state.pingTargets;
+  const { state } = localModel;
+  const { stores, pingTargets } = state;
 
   // pick the first stored ping target to evaluate dataset length.
   const pingTargetSample = pingTargets[0];
@@ -114,6 +112,8 @@ localModel.calculateQuality = () => {
     // not enough samples
     return;
   }
+
+  const newState = {};
 
   pingTargets.forEach((pingTarget) => {
     if (KNOWN_TARGETS.indexOf(pingTarget.id) === -1) {
@@ -128,16 +128,24 @@ localModel.calculateQuality = () => {
     const spikeSeverity = localModel.calculateSpike(data, dataBaseline);
     const jitterSeverity = localModel.calculateJitter(data, dataBaseline);
 
-    const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2)
+    const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2);
 
     log.info(`cq() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
-    'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
-    'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
-    `(${baselineDiff}%)`);
+      'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
+      'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
+      `(${baselineDiff}%)`);
 
     const severity = Math.max(spikeSeverity, jitterSeverity);
-    led.setState(pingTarget.id, severity);
+
+    newState[pingTarget.id] = severity;
   });
+
+  const neopixelMessage = {
+    type: 'set_led',
+    state: newState,
+  };
+
+  eventBus.emit('update-neopixel', neopixelMessage);
 };
 
 /**
@@ -167,7 +175,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
 
   const dataDeviation = spikeData.map((pingTime) => {
     if (pingTime === 0) {
-      pingFailsFound++;
+      pingFailsFound += 1;
       return 0;
     }
     if (pingTime < dataBaseline.high) {
@@ -196,6 +204,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
   // Calculate severity
   return dataDeviation.reduce((severity, deviation) => {
     // lax conditional on purpose
+    // eslint-disable-next-line eqeqeq
     if (deviation == 0) {
       return SEV.SEV0;
     }
@@ -225,14 +234,10 @@ localModel.calculateSpike = (data, dataBaseline) => {
  * of jitter deviation from the high baseline over the entire dataset.
  *
  * @param {Array.<number>} data Ping times in sequence.
- * @param {Object} dataBaseline Baseline object.
  * @return {number} severity number.
  */
-localModel.calculateJitter = (data, dataBaseline) => {
+localModel.calculateJitter = (data) => {
   // percentages that set the boundaries of severities
-  const HIGH = 0.65;
-  const LOW = 0.3;
-
   if (!data.length) {
     return SEV.SEV0;
   }
@@ -249,9 +254,9 @@ localModel.calculateJitter = (data, dataBaseline) => {
     const diff = data[index - 1] - pingTime;
     if (diff < 0) {
       return diff * -1;
-    } else {
-      return diff;
     }
+
+    return diff;
   });
 
   if (totalDifference === 0) {
