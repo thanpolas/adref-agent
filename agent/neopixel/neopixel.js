@@ -55,6 +55,7 @@ neopixel.init = (opts) => {
 
   // Listen to system events
   eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
+  eventBus.on('ping-fail', neopixel.onStatusUpdate.bind(null, pixelState));
 };
 
 /**

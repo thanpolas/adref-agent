@@ -93,7 +93,14 @@ def rainbow(strip, wait_ms=20, iterations=2):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
-def setAdrefLed(type, state):
+def ping_fail(target):
+    """
+    Triggers when a ping fail happens.
+    """
+
+def get_color_from_state(state):
+    color = Color(0, 0, 0)
+
     if state == 0:
         color = Color(0, 255, 0)
     if state == 1:
@@ -105,16 +112,31 @@ def setAdrefLed(type, state):
     if state == 4:
         color = Color(255, 0, 0)
 
-    if type == "local":
+    return color
+
+def set_adref_led(target, state):
+    if target == "local":
         leds = [0]
-    if type == "gateway":
+    if target == "gateway":
         leds = [3]
-    if type == "internet":
+    if target == "internet":
         leds = [6]
+
+    color = get_color_from_state(state)
 
     for i in leds:
         strip.setPixelColor(i, color)
+
     strip.show()
+
+def set_internet_state(state):
+    color = get_color_from_state(state)
+
+    for i in range(8)
+        strip.setPixelColor(i, color)
+
+    strip.show()
+
 
 # Main loop:
 if __name__ == '__main__':
@@ -153,9 +175,17 @@ if __name__ == '__main__':
             message = json.loads(data)
 
             if message['type'] == "set_led":
-                setAdrefLed("local", int(message["state"]["local"]))
-                setAdrefLed("gateway", int(message["state"]["gateway"]))
-                setAdrefLed("internet", int(message["state"]["internet"]))
+                internetState = int(message["state"]["internet"])
+
+                if (internetState < 2):
+                    set_internet_state(internetState)
+                else:
+                    set_adref_led("local", int(message["state"]["local"]))
+                    set_adref_led("gateway", int(message["state"]["gateway"]))
+                    set_adref_led("internet", int(message["state"]["internet"]))
+
+            if message['type'] == "ping_fail":
+                ping_fail(message["target"])
 
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)

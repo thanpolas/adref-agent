@@ -16,7 +16,6 @@ const agent = module.exports = {};
  *
  */
 agent.start = async () => {
-
   const pingTargets = await agent.getPingTargets();
 
   agent.setupEventHandlers(pingTargets);
@@ -26,7 +25,7 @@ agent.start = async () => {
 
   const promises = pingTargets.map((pingTarget) => {
     return startPing(pingTarget);
-  })
+  });
 
   await Promise.all(promises);
 };
@@ -65,7 +64,7 @@ agent.getPingTargets = async () => {
  */
 agent.setupEventHandlers = (pingTargets) => {
   pingTargets.forEach((pingTarget) => {
-    eventBus.on(pingTarget.id + '-on_stdout',
+    eventBus.on(`${pingTarget.id}-on_stdout`,
       agent.onStdout.bind(null, pingTarget));
   });
 };
@@ -85,7 +84,12 @@ agent.onStdout = (pingTarget, message) => {
 
   if (pingData.ping_success === false) {
     pingData.target_ip = pingTarget.pingIp;
+
+    eventBus.emit('ping-fail', {
+      type: 'ping_fail',
+      target: pingTarget.id,
+    });
   }
 
-  eventBus.emit(pingTarget.id + '-ping', pingTarget, pingData);
+  eventBus.emit(`${pingTarget.id}-ping`, pingTarget, pingData);
 };
