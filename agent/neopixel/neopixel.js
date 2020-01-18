@@ -22,14 +22,14 @@ const neopixel = module.exports = {};
 /**
  * Initialize the Neopixel
  *
- * @param {Object} opts Options when initializing:
+ * @param {Object=} opts Options when initializing:
  * @param {number} opts.pixels How many LED lights are available.
  * @param {number} opts.brightness A number ranging from 0 to 100.
  * @param {number} opts.waitms Time to wait between commands in ms.
  */
-neopixel.init = (opts) => {
+neopixel.init = (opts = {}) => {
   const pixelState = {};
-  pixelState.pixels = opts.pixels || 1;
+  pixelState.pixels = opts.pixels || 8;
   pixelState.gamma = true;
 
   pixelState.brightness = Number(opts.brightness || 100);
