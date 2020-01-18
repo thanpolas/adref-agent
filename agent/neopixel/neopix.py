@@ -3,6 +3,8 @@
 # Import library functions we need
 import sys
 import time
+from enum import Enum
+import json
 try:
     from rpi_ws281x import __version__, PixelStrip, Adafruit_NeoPixel, Color
 except ImportError:
@@ -19,7 +21,7 @@ LED_COUNT      = 8      # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
+LED_BRIGHTNESS = 10     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # PWM channel
 LED_GAMMA = [
@@ -41,10 +43,39 @@ LED_GAMMA = [
 222,224,227,229,231,233,235,237,239,241,244,246,248,250,252,255]
 
 
+class Types(Enum):
+  LOCAL = "local"
+  GATEWAY = "gateway"
+  INTERNET = "internet"
+
+class Modes(Enum):
+  # Null state when still initializing or not enough data collected.
+  NULL = "null"
+  # Green is all good
+  GREEN = "green"
+  # Severity 1 (low impact)
+  SEV1 = "sev1"
+  # Severity 2 (medium impact)
+  SEV2 = "sev2"
+  # Severity 3 (high impact)
+  SEV3 = "sev3"
+  # Severity 4 (no service)
+  SEV4 = "sev4"
+
+class ModeColors(Enum):
+    NULL = Color(0, 0, 0)
+    GREEN = Color(0, 255, 0)
+    SEV1 = Color(195, 255, 0)
+    SEV2 = Color(255, 140, 0)
+    SEV3 = Color(255, 0, 0)
+    SEV4 = Color(255, 0, 0)
+
 LED_COUNT = max(0,int(sys.argv[1]))
 WAIT_MS = max(0,int(sys.argv[2]))
 MODE = sys.argv[3]
 LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[4])) * 255 / 100))
+
+print(LED_BRIGHTNESS)
 if (sys.argv[5].lower() != "true"):
     LED_GAMMA = range(256)
 
@@ -157,6 +188,32 @@ def rainbowCycle(strip, wait_ms=20, iterations=2):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
+
+def setAdrefLed(type, state):
+    if state == "null":
+        color = Color(0, 0, 0)
+    if state == "green":
+        color = Color(0, 255, 0)
+    if state == "sev1":
+        color = Color(255, 255, 0)
+    if state == "sev2":
+        color = Color(255, 100, 0)
+    if state == "sev3":
+        color = Color(255, 0, 0)
+    if state == "sev4":
+        color = Color(255, 0, 0)
+
+    if type == "local":
+        leds = [0]
+    if type == "gateway":
+        leds = [3]
+    if type == "internet":
+        leds = [6]
+
+    for i in leds:
+        strip.setPixelColor(i, color)
+    strip.show()
+
 # Main loop:
 if __name__ == '__main__':
     # Create NeoPixel object with appropriate configuration.
@@ -175,28 +232,20 @@ if __name__ == '__main__':
     colorWipe(strip, Color(0, 0, 0), WAIT_MS)  # Off wipe
 
     ## Rainbow animations.
-    #rainbow(strip)
-    #rainbowCycle(strip)
+    # rainbow(strip)
+    # rainbowCycle(strip)
     #colorWipe(strip, Color(0, 0, 0))  # Off wipe
 
     while True:
         try:
             data = raw_input()
-            bits = data.split(',')
-            if len(bits) == 2:
-                if bits[0] == "brightness":
-                    setBrightness(strip, min(255,max(0,int(bits[1]))), WAIT_MS)
-            if len(bits) == 3:
-                if MODE == "shiftu":
-                    shiftUp(strip, Color(int(bits[0]), int(bits[1]), int(bits[2])), WAIT_MS)
-                elif MODE == "shiftd":
-                    shiftDown(strip, Color(int(bits[0]), int(bits[1]), int(bits[2])), WAIT_MS)
-                else:
-                    colorWipe(strip, Color(int(bits[0]), int(bits[1]), int(bits[2])), WAIT_MS)
-            if (MODE[0] == 'p' and len(bits) == 4):
-                setPixel(strip, int(bits[0]), Color(int(bits[1]), int(bits[2]), int(bits[3]) ))
-            if (MODE[0] == 'p' and len(bits) == 5):
-                setPixels(strip, int(bits[0]), int(bits[1]), Color(int(bits[2]), int(bits[3]), int(bits[4]) ), WAIT_MS)
+            message = json.loads(data)
+
+            if message['type'] == "set_led":
+                setAdrefLed("local", message["state"]["local"])
+                setAdrefLed("gateway", message["state"]["gateway"])
+                setAdrefLed("internet", message["state"]["internet"])
+
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)
         except Exception as ex:
