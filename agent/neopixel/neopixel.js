@@ -48,7 +48,6 @@ neopixel.init = (opts = {}) => {
   pixelState.child = spawn(piCommand, [
     pixelState.pixels,
     pixelState.waitms,
-    pixelState.mode,
     pixelState.brightness,
     pixelState.gamma,
   ]);
