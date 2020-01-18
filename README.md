@@ -2,8 +2,11 @@
 
 A ping agent written in node.js for the Adref service.
 
-## Install
+## Still Work In Progress
 
+This is actively being worked on, don't this at home (yet).
+
+## Install
 
 ## Documentation
 
