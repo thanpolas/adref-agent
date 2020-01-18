@@ -54,7 +54,7 @@ neopixel.init = (opts) => {
   ]);
 
   // Listen to system events
-  eventBus.on('new-state', neopixel.onStatusUpdate.bind(null, pixelState));
+  eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
 };
 
 /**
