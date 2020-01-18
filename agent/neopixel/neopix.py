@@ -48,34 +48,6 @@ LED_GAMMA = [
 191,193,194,196,198,200,202,204,206,208,210,212,214,216,218,220,
 222,224,227,229,231,233,235,237,239,241,244,246,248,250,252,255]
 
-
-class Types(Enum):
-  LOCAL = "local"
-  GATEWAY = "gateway"
-  INTERNET = "internet"
-
-class Modes(Enum):
-  # Null state when still initializing or not enough data collected.
-  NULL = "null"
-  # Green is all good
-  GREEN = "green"
-  # Severity 1 (low impact)
-  SEV1 = "sev1"
-  # Severity 2 (medium impact)
-  SEV2 = "sev2"
-  # Severity 3 (high impact)
-  SEV3 = "sev3"
-  # Severity 4 (no service)
-  SEV4 = "sev4"
-
-class ModeColors(Enum):
-    NULL = Color(0, 0, 0)
-    GREEN = Color(0, 255, 0)
-    SEV1 = Color(195, 255, 0)
-    SEV2 = Color(255, 140, 0)
-    SEV3 = Color(255, 0, 0)
-    SEV4 = Color(255, 0, 0)
-
 LED_COUNT = max(0,int(sys.argv[1]))
 WAIT_MS = max(0,int(sys.argv[2]))
 MODE = sys.argv[3]
@@ -102,6 +74,17 @@ def colorWipe(strip, color, wait_ms=30):
             strip.setPixelColor(i, color)
         strip.show()
 
+def wheel(pos):
+    """Generate rainbow colors across 0-255 positions."""
+    if pos < 85:
+        return Color(pos * 3, 255 - pos * 3, 0)
+    elif pos < 170:
+        pos -= 85
+        return Color(255 - pos * 3, 0, pos * 3)
+    else:
+        pos -= 170
+        return Color(0, pos * 3, 255 - pos * 3)
+
 def rainbow(strip, wait_ms=20, iterations=2):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
@@ -109,18 +92,17 @@ def rainbow(strip, wait_ms=20, iterations=2):
             strip.setPixelColor(i, wheel((i+j) & 255))
         strip.show()
         time.sleep(wait_ms/1000.0)
+
 def setAdrefLed(type, state):
-    if state == "null":
-        color = Color(0, 0, 0)
-    if state == "green":
+    if state == 0:
         color = Color(0, 255, 0)
-    if state == "sev1":
+    if state == 1:
         color = Color(255, 255, 0)
-    if state == "sev2":
+    if state == 2:
         color = Color(255, 100, 0)
-    if state == "sev3":
+    if state == 3:
         color = Color(255, 0, 0)
-    if state == "sev4":
+    if state == 4:
         color = Color(255, 0, 0)
 
     if type == "local":
@@ -152,14 +134,28 @@ if __name__ == '__main__':
     colorWipe(strip, Color(0, 0, 0), WAIT_MS)  # Off wipe
 
     while True:
+        """
+        Monitors stdin for messages from the node agent. The messages are JSON serialized and have the schema:
+        {
+          # The type of the message, can be one of "set_led", "ping_timeout"
+          type: "set_led",
+
+          # State defined when "set_led" type, 0 for green to 4 for outage.
+          state: {
+            local: 0,
+            gateway: 0,
+            internet: 1,
+          }
+        }
+        """
         try:
             data = raw_input()
             message = json.loads(data)
 
             if message['type'] == "set_led":
-                setAdrefLed("local", message["state"]["local"])
-                setAdrefLed("gateway", message["state"]["gateway"])
-                setAdrefLed("internet", message["state"]["internet"])
+                setAdrefLed("local", int(message["state"]["local"]))
+                setAdrefLed("gateway", int(message["state"]["gateway"]))
+                setAdrefLed("internet", int(message["state"]["internet"]))
 
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)
