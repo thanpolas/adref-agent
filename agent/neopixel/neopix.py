@@ -50,10 +50,9 @@ LED_GAMMA = [
 
 LED_COUNT = max(0,int(sys.argv[1]))
 WAIT_MS = max(0,int(sys.argv[2]))
-MODE = sys.argv[3]
-LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[4])) * 255 / 100))
+LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 
-if (sys.argv[5].lower() != "true"):
+if (sys.argv[4].lower() != "true"):
     LED_GAMMA = range(256)
 
 def setBrightness(strip, brightness, wait_ms=30):
@@ -132,7 +131,7 @@ def set_adref_led(target, state):
 def set_internet_state(state):
     color = get_color_from_state(state)
 
-    for i in range(8)
+    for i in range(8):
         strip.setPixelColor(i, color)
 
     strip.show()
