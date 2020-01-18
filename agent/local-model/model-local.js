@@ -115,6 +115,9 @@ localModel.calculateQuality = () => {
     return;
   }
 
+  const newState = {
+  };
+
   pingTargets.forEach((pingTarget) => {
     if (KNOWN_TARGETS.indexOf(pingTarget.id) === -1) {
       // unknown target
@@ -136,8 +139,18 @@ localModel.calculateQuality = () => {
     `(${baselineDiff}%)`);
 
     const severity = Math.max(spikeSeverity, jitterSeverity);
-    led.setState(pingTarget.id, severity);
+
+
   });
+
+  const neopixelMessage = {
+    type: 'set_led',
+    state: {
+      local:
+    }
+  }
+  eventBus.emit('update-neopixel', neopixelMessage);
+
 };
 
 /**
@@ -225,14 +238,10 @@ localModel.calculateSpike = (data, dataBaseline) => {
  * of jitter deviation from the high baseline over the entire dataset.
  *
  * @param {Array.<number>} data Ping times in sequence.
- * @param {Object} dataBaseline Baseline object.
  * @return {number} severity number.
  */
-localModel.calculateJitter = (data, dataBaseline) => {
+localModel.calculateJitter = (data) => {
   // percentages that set the boundaries of severities
-  const HIGH = 0.65;
-  const LOW = 0.3;
-
   if (!data.length) {
     return SEV.SEV0;
   }
@@ -249,9 +258,9 @@ localModel.calculateJitter = (data, dataBaseline) => {
     const diff = data[index - 1] - pingTime;
     if (diff < 0) {
       return diff * -1;
-    } else {
-      return diff;
     }
+
+    return diff;
   });
 
   if (totalDifference === 0) {
