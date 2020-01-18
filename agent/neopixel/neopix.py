@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+# Original Source
+# Copyright 2013-2016 IBM Corp.
+# Copyright 2016 JS Foundation and other contributors, https://js.foundation/
+# https://github.com/node-red/node-red-nodes/tree/master/hardware/neopixel
+
+
 # Import library functions we need
 import sys
 import time
@@ -75,33 +81,8 @@ WAIT_MS = max(0,int(sys.argv[2]))
 MODE = sys.argv[3]
 LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[4])) * 255 / 100))
 
-print(LED_BRIGHTNESS)
 if (sys.argv[5].lower() != "true"):
     LED_GAMMA = range(256)
-
-def getRGBfromI(RGBint):
-    blue =  RGBint & 255
-    green = (RGBint >> 8) & 255
-    red =   (RGBint >> 16) & 255
-    return red, green, blue
-
-# Define functions which animate LEDs in various ways.
-def setPixel(strip, i, color):
-    """Set a single pixel"""
-    strip.setPixelColor(i, color)
-    strip.show()
-
-def setPixels(strip, s, e, color, wait_ms=30):
-    """Set pixels from s(tart) to e(nd)"""
-    if (wait_ms > 0):
-        for i in range(s, e+1):
-            strip.setPixelColor(i, color)
-            strip.show()
-            time.sleep(wait_ms/1000.0)
-    else:
-        for i in range(s, e+1):
-            strip.setPixelColor(i, color)
-        strip.show()
 
 def setBrightness(strip, brightness, wait_ms=30):
     """Set overall brighness"""
@@ -121,57 +102,6 @@ def colorWipe(strip, color, wait_ms=30):
             strip.setPixelColor(i, color)
         strip.show()
 
-def shiftUp(strip, color, wait_ms=30):
-    """Shift all pixels one way."""
-    oldcolour = strip.getPixelColor(0)
-    strip.setPixelColor(0, color)
-    strip.show()
-    if (wait_ms > 0):
-        time.sleep(wait_ms/1000.0)
-        for i in range(1,LED_COUNT):
-            newcolour = oldcolour
-            oldcolour = strip.getPixelColor(i)
-            strip.setPixelColor(i, newcolour)
-            strip.show()
-            time.sleep(wait_ms/1000.0)
-    else:
-        for i in range(1,LED_COUNT):
-            newcolour = oldcolour
-            oldcolour = strip.getPixelColor(i)
-            strip.setPixelColor(i, newcolour)
-        strip.show()
-
-def shiftDown(strip, color, wait_ms=30):
-    """Shift all pixels the other way."""
-    oldcolour = strip.getPixelColor(LED_COUNT-1)
-    strip.setPixelColor(LED_COUNT-1, color)
-    strip.show()
-    if (wait_ms > 0):
-        time.sleep(wait_ms/1000.0)
-        for i in range(LED_COUNT-2,-1,-1):
-            newcolour = oldcolour
-            oldcolour = strip.getPixelColor(i)
-            strip.setPixelColor(i, newcolour)
-            strip.show()
-            time.sleep(wait_ms/1000.0)
-    else:
-        for i in range(LED_COUNT-2,-1,-1):
-            newcolour = oldcolour
-            oldcolour = strip.getPixelColor(i)
-            strip.setPixelColor(i, newcolour)
-        strip.show()
-
-def wheel(pos):
-    """Generate rainbow colors across 0-255 positions."""
-    if pos < 85:
-        return Color(pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return Color(255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return Color(0, pos * 3, 255 - pos * 3)
-
 def rainbow(strip, wait_ms=20, iterations=2):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
@@ -179,16 +109,6 @@ def rainbow(strip, wait_ms=20, iterations=2):
             strip.setPixelColor(i, wheel((i+j) & 255))
         strip.show()
         time.sleep(wait_ms/1000.0)
-
-def rainbowCycle(strip, wait_ms=20, iterations=2):
-    """Draw rainbow that uniformly distributes itself across all pixels."""
-    for j in range(256*iterations):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, wheel(((i * 256 / strip.numPixels()) + j) & 255))
-        strip.show()
-        time.sleep(wait_ms/1000.0)
-
-
 def setAdrefLed(type, state):
     if state == "null":
         color = Color(0, 0, 0)
@@ -230,11 +150,6 @@ if __name__ == '__main__':
     colorWipe(strip, Color(0, 127, 0), WAIT_MS)  # Green wipe
     colorWipe(strip, Color(0, 0, 127), WAIT_MS)  # Blue wipe
     colorWipe(strip, Color(0, 0, 0), WAIT_MS)  # Off wipe
-
-    ## Rainbow animations.
-    # rainbow(strip)
-    # rainbowCycle(strip)
-    #colorWipe(strip, Color(0, 0, 0))  # Off wipe
 
     while True:
         try:
