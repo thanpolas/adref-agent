@@ -47,10 +47,6 @@ Just push to master for now ¯\_(ツ)_/¯.
 
 - **v0.0.2**, *17 Jan 2020* :: First working version of node.js agent.
 
-## Authors
-
-* [Thanasis Polychronakis](https://github.com/thanpolas)
-
 ## License
 
 Copyright Thanasis Polychronakis. [Licensed under the MIT license](/LICENSE)

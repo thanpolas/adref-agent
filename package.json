@@ -22,7 +22,8 @@
     "start": "node ./agent/"
   },
   "dependencies": {
-    "axios": "^0.19.1"
+    "axios": "^0.19.1",
+    "yaml": "^1.7.2"
   },
   "devDependencies": {
     "eslint": "6.5.1",
