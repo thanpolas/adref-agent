@@ -175,7 +175,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
 
   const dataDeviation = spikeData.map((pingTime) => {
     if (pingTime === 0) {
-      pingFailsFound++;
+      pingFailsFound += 1;
       return 0;
     }
     if (pingTime < dataBaseline.high) {
@@ -204,6 +204,7 @@ localModel.calculateSpike = (data, dataBaseline) => {
   // Calculate severity
   return dataDeviation.reduce((severity, deviation) => {
     // lax conditional on purpose
+    // eslint-disable-next-line eqeqeq
     if (deviation == 0) {
       return SEV.SEV0;
     }
