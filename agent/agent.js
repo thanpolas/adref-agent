@@ -88,10 +88,13 @@ agent.onStdout = (pingTarget, message) => {
   if (pingData.ping_success === false) {
     pingData.target_ip = pingTarget.pingIp;
 
-    eventBus.emit('ping-fail', {
-      type: 'ping_fail',
-      target: pingTarget.id,
-    });
+    // Emit ping-fail only for internet
+    if (pingTarget.id === 'internet') {
+      eventBus.emit('ping-fail', {
+        type: 'ping_fail',
+        target: pingTarget.id,
+      });
+    }
   }
 
   eventBus.emit(`${pingTarget.id}-ping`, pingTarget, pingData);
