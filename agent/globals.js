@@ -34,6 +34,9 @@ globals.apiEndpoint = userConfig.apiEndpoint
 // How many pings to sample for determining spike severity
 globals.spikePingSample = 5;
 
+// LED Brightness
+globals.brightness = userConfig.brightness || 40;
+
 // Every how many pings to submit to the API
 globals.apiSubmitPingsInterval = userConfig.apiSubmitPingsInterval || 300;
 

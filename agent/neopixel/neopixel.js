@@ -33,7 +33,7 @@ neopixel.init = (opts = {}) => {
   pixelState.pixels = opts.pixels || 8;
   pixelState.gamma = true;
 
-  pixelState.brightness = Number(opts.brightness || 30);
+  pixelState.brightness = Number(opts.brightness || 40);
 
   pixelState.waitms = Number(opts.waitms || 20);
   if (pixelState.waitms < 0) {

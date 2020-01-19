@@ -36,6 +36,7 @@ token: thanpolas-raspberry-2
 You may additionally define the following keys for more advanced control:
 
 * `apiEndpoint` **{string}** Override the endpoint to submit the results.
+* `brightness` **{number}** From 0 to 100.
 * `apiSubmitPingsInterval` **{integer}** Default: 300, Every how many pings 
     to submit to the API.
 * `localWatcherInterval` **{integer}** Default: 5000, Local watcher that 

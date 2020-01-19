@@ -9,6 +9,7 @@ const { processPingResults } = require('./ping-library');
 const apiModel = require('./model-api');
 const localModel = require('./local-model/model-local');
 const neopixel = require('../agent/neopixel/neopixel');
+const globals = require('./globals');
 
 const agent = module.exports = {};
 
@@ -28,7 +29,9 @@ agent.start = async () => {
     return startPing(pingTarget);
   });
 
-  neopixel.init();
+  neopixel.init({
+    brightness: globals.brightness,
+  });
 
   await Promise.all(promises);
 };
