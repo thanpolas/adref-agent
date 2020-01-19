@@ -8,6 +8,7 @@
 
 # Import library functions we need
 import sys
+import getpass
 import time
 from enum import Enum
 import threading
@@ -57,7 +58,7 @@ LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 #     LED_GAMMA = range(256)
 
 blink_active = False
-prev_state = 0
+prev_state = 10
 
 def blink_leds():
     toggle = True
@@ -149,7 +150,6 @@ def set_adref_led(target, state):
 def set_internet_state(state):
     global prev_state
     global blink_active
-
     color = get_color_from_state(state)
 
     if state != prev_state:
@@ -192,6 +192,7 @@ if __name__ == '__main__':
         strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_GAMMA)# Intialize the library (must be called once before other functions).
 
     strip.begin()
+    print("Python Init. Running as user:" + str(getpass.getuser()))
 
     ## Color wipe animations.
     colorWipe(strip, Color(127, 0, 0), WAIT_MS)  # Red wipe
