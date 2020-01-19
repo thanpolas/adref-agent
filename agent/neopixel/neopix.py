@@ -8,6 +8,7 @@
 
 # Import library functions we need
 import sys
+import getpass
 import time
 from enum import Enum
 import threading
@@ -57,6 +58,7 @@ LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 #     LED_GAMMA = range(256)
 
 blink_active = False
+prev_state = 10
 
 def blink_leds():
     toggle = True
@@ -78,7 +80,7 @@ def setBrightness(strip, brightness, wait_ms=30):
     strip.show()
     time.sleep(wait_ms/1000.0)
 
-def colorWipe(strip, color, wait_ms=30):
+def colorWipe(strip, color, wait_ms = 0):
     """Wipe color across display a pixel at a time."""
     if (wait_ms > 0):
         for i in range(strip.numPixels()):
@@ -112,7 +114,14 @@ def rainbow(strip, wait_ms=20, iterations=2):
 def ping_fail(target):
     """
     Triggers when a ping fail happens.
+    We will blink the lights fast
     """
+    colorWipe(strip, Color(255, 0, 0))
+    time.sleep(0.5)
+    global prev_state
+    orig_prev_state = prev_state
+    prev_state = 10
+    set_internet_state(orig_prev_state)
 
 def get_color_from_state(state):
     color = Color(0, 0, 0)
@@ -146,10 +155,12 @@ def set_adref_led(target, state):
     strip.show()
 
 def set_internet_state(state):
-    color = get_color_from_state(state)
-    colorWipe(strip, Color(0, 0, 0))
-
+    global prev_state
     global blink_active
+    color = get_color_from_state(state)
+
+    if state != prev_state:
+        colorWipe(strip, Color(0, 0, 0))
 
     show_blink = False
     blink_active = False
@@ -164,16 +175,19 @@ def set_internet_state(state):
     if state == 4:
         rangeNum = 8
         show_blink = True
-
-    for i in range(rangeNum):
-        strip.setPixelColor(i, color)
-
-    strip.show()
-
-    if show_blink and blink_active == False:
         blink_active = True
-        blink_thread = threading.Thread(target=blink_leds)
-        blink_thread.start()
+
+    if state != prev_state:
+        for i in range(rangeNum):
+            strip.setPixelColor(i, color)
+
+        strip.show()
+
+        if show_blink:
+            blink_thread = threading.Thread(target=blink_leds)
+            blink_thread.start()
+
+    prev_state = state
 
 # Main loop:
 if __name__ == '__main__':
@@ -185,6 +199,7 @@ if __name__ == '__main__':
         strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_GAMMA)# Intialize the library (must be called once before other functions).
 
     strip.begin()
+    print("Python Init. Running as user:" + str(getpass.getuser()))
 
     ## Color wipe animations.
     colorWipe(strip, Color(127, 0, 0), WAIT_MS)  # Red wipe

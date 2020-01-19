@@ -35,7 +35,7 @@ neopixel.init = (opts = {}) => {
 
   pixelState.brightness = Number(opts.brightness || 30);
 
-  pixelState.waitms = Number(opts.waitms || 40);
+  pixelState.waitms = Number(opts.waitms || 20);
   if (pixelState.waitms < 0) {
     pixelState.waitms = 0;
   }
@@ -64,6 +64,10 @@ neopixel.init = (opts = {}) => {
 
   pixelState.child.on('close', (code, signal) => {
     log.info('neopixelInit() :: Closed:', code, signal);
+  });
+
+  pixelState.child.on('error', (err) => {
+    log.info('neopixelInit() :: Error:', err);
   });
 
   // Listen to system events
