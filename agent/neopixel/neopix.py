@@ -57,6 +57,7 @@ LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 #     LED_GAMMA = range(256)
 
 blink_active = False
+prev_state = 0
 
 def blink_leds():
     toggle = True
@@ -146,10 +147,13 @@ def set_adref_led(target, state):
     strip.show()
 
 def set_internet_state(state):
-    color = get_color_from_state(state)
-    colorWipe(strip, Color(0, 0, 0))
-
+    global prev_state
     global blink_active
+
+    color = get_color_from_state(state)
+
+    if state != prev_state:
+        colorWipe(strip, Color(0, 0, 0))
 
     show_blink = False
     blink_active = False
@@ -164,16 +168,19 @@ def set_internet_state(state):
     if state == 4:
         rangeNum = 8
         show_blink = True
-
-    for i in range(rangeNum):
-        strip.setPixelColor(i, color)
-
-    strip.show()
-
-    if show_blink and blink_active == False:
         blink_active = True
-        blink_thread = threading.Thread(target=blink_leds)
-        blink_thread.start()
+
+    if state != prev_state:
+        for i in range(rangeNum):
+            strip.setPixelColor(i, color)
+
+        strip.show()
+
+        if show_blink:
+            blink_thread = threading.Thread(target=blink_leds)
+            blink_thread.start()
+
+    prev_state = state
 
 # Main loop:
 if __name__ == '__main__':
