@@ -66,6 +66,10 @@ neopixel.init = (opts = {}) => {
     log.info('neopixelInit() :: Closed:', code, signal);
   });
 
+  pixelState.child.on('error', (err) => {
+    log.info('neopixelInit() :: Error:', err);
+  });
+
   // Listen to system events
   eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
   eventBus.on('ping-fail', neopixel.onStatusUpdate.bind(null, pixelState));
