@@ -80,7 +80,7 @@ def setBrightness(strip, brightness, wait_ms=30):
     strip.show()
     time.sleep(wait_ms/1000.0)
 
-def colorWipe(strip, color, wait_ms=30):
+def colorWipe(strip, color, wait_ms = 0):
     """Wipe color across display a pixel at a time."""
     if (wait_ms > 0):
         for i in range(strip.numPixels()):
@@ -114,7 +114,14 @@ def rainbow(strip, wait_ms=20, iterations=2):
 def ping_fail(target):
     """
     Triggers when a ping fail happens.
+    We will blink the lights fast
     """
+    colorWipe(strip, Color(255, 0, 0))
+    time.sleep(0.5)
+    global prev_state
+    orig_prev_state = prev_state
+    prev_state = 10
+    set_internet_state(orig_prev_state)
 
 def get_color_from_state(state):
     color = Color(0, 0, 0)
