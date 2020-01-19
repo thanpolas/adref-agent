@@ -10,6 +10,7 @@
 import sys
 import time
 from enum import Enum
+import threading
 import json
 try:
     from rpi_ws281x import __version__, PixelStrip, Adafruit_NeoPixel, Color
@@ -52,8 +53,24 @@ LED_COUNT = max(0,int(sys.argv[1]))
 WAIT_MS = max(0,int(sys.argv[2]))
 LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 
-if (sys.argv[4].lower() != "true"):
-    LED_GAMMA = range(256)
+# if (sys.argv[4].lower() != "true"):
+#     LED_GAMMA = range(256)
+
+blink_active = False
+
+def blink_leds():
+    toggle = True
+    bleep_time = 1
+    global blink_active
+    while blink_active:
+        if toggle:
+            colorWipe(strip, Color(0, 0, 0))
+            toggle = False
+            time.sleep(bleep_time)
+        else:
+            colorWipe(strip, Color(255, 0, 0))
+            toggle = True
+            time.sleep(bleep_time)
 
 def setBrightness(strip, brightness, wait_ms=30):
     """Set overall brighness"""
@@ -105,7 +122,7 @@ def get_color_from_state(state):
     if state == 1:
         color = Color(255, 255, 0)
     if state == 2:
-        color = Color(255, 100, 0)
+        color = Color(255, 200, 0)
     if state == 3:
         color = Color(255, 0, 0)
     if state == 4:
@@ -130,12 +147,33 @@ def set_adref_led(target, state):
 
 def set_internet_state(state):
     color = get_color_from_state(state)
+    colorWipe(strip, Color(0, 0, 0))
 
-    for i in range(8):
+    global blink_active
+
+    show_blink = False
+    blink_active = False
+
+    rangeNum = 8
+    if state == 1:
+        rangeNum = 6
+    if state == 2:
+        rangeNum = 4
+    if state == 3:
+        rangeNum = 2
+    if state == 4:
+        rangeNum = 8
+        show_blink = True
+
+    for i in range(rangeNum):
         strip.setPixelColor(i, color)
 
     strip.show()
 
+    if show_blink and blink_active == False:
+        blink_active = True
+        blink_thread = threading.Thread(target=blink_leds)
+        blink_thread.start()
 
 # Main loop:
 if __name__ == '__main__':
@@ -175,13 +213,7 @@ if __name__ == '__main__':
 
             if message['type'] == "set_led":
                 internetState = int(message["state"]["internet"])
-
-                if (internetState < 2):
-                    set_internet_state(internetState)
-                else:
-                    set_adref_led("local", int(message["state"]["local"]))
-                    set_adref_led("gateway", int(message["state"]["gateway"]))
-                    set_adref_led("internet", int(message["state"]["internet"]))
+                set_internet_state(internetState)
 
             if message['type'] == "ping_fail":
                 ping_fail(message["target"])
