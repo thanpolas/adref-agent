@@ -8,6 +8,7 @@ const eventBus = require('./event-bus');
 const { processPingResults } = require('./ping-library');
 const apiModel = require('./model-api');
 const localModel = require('./local-model/model-local');
+const neopixel = require('../agent/neopixel/neopixel');
 
 const agent = module.exports = {};
 
@@ -26,6 +27,8 @@ agent.start = async () => {
   const promises = pingTargets.map((pingTarget) => {
     return startPing(pingTarget);
   });
+
+  neopixel.init();
 
   await Promise.all(promises);
 };

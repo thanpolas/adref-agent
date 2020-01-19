@@ -11,6 +11,7 @@
 const { spawn } = require('child_process');
 
 const eventBus = require('../event-bus');
+const log = require('../logger');
 
 const piCommand = `${__dirname}/neopix.py`;
 
@@ -22,17 +23,17 @@ const neopixel = module.exports = {};
 /**
  * Initialize the Neopixel
  *
- * @param {Object} opts Options when initializing:
+ * @param {Object=} opts Options when initializing:
  * @param {number} opts.pixels How many LED lights are available.
  * @param {number} opts.brightness A number ranging from 0 to 100.
  * @param {number} opts.waitms Time to wait between commands in ms.
  */
-neopixel.init = (opts) => {
+neopixel.init = (opts = {}) => {
   const pixelState = {};
-  pixelState.pixels = opts.pixels || 1;
+  pixelState.pixels = opts.pixels || 8;
   pixelState.gamma = true;
 
-  pixelState.brightness = Number(opts.brightness || 100);
+  pixelState.brightness = Number(opts.brightness || 30);
 
   pixelState.waitms = Number(opts.waitms || 40);
   if (pixelState.waitms < 0) {
@@ -48,10 +49,22 @@ neopixel.init = (opts) => {
   pixelState.child = spawn(piCommand, [
     pixelState.pixels,
     pixelState.waitms,
-    pixelState.mode,
     pixelState.brightness,
     pixelState.gamma,
   ]);
+
+
+  pixelState.child.stdout.on('data', (buffer) => {
+    log.info('neopixelInit() :: stdout:', buffer.toString());
+  });
+
+  pixelState.child.stderr.on('data', (buffer) => {
+    log.info('neopixelInit() :: stderr data:', buffer.toString());
+  });
+
+  pixelState.child.on('close', (code, signal) => {
+    log.info('neopixelInit() :: Closed:', code, signal);
+  });
 
   // Listen to system events
   eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
