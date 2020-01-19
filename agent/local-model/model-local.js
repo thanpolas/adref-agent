@@ -126,12 +126,13 @@ localModel.calculateQuality = () => {
     const dataBaseline = baseline(data);
 
     const spikeSeverity = localModel.calculateSpike(data, dataBaseline);
-    const jitterSeverity = localModel.calculateJitter(data, dataBaseline);
+    const jitterValue = localModel.calculateJitter(data, dataBaseline);
+    const jitterSeverity = localModel.calculateJitterSeverity(jitterValue);
 
     const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2);
 
     log.info(`cq() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
-      'jitterSev:', jitterSeverity, 'avg:', dataBaseline.average.toFixed(2),
+      `jitterSev: ${jitterSeverity} Jitter Value: ${jitterValue}ms avg: ${dataBaseline.average.toFixed(2)}`,
       'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
       `(${baselineDiff}%)`);
 
@@ -265,17 +266,27 @@ localModel.calculateJitter = (data) => {
 
   const jitter = totalDifference / data.length;
 
-  // Jitter quality is quantitative:
-  //
-  // Jitter Level     Acceptability
-  // <   1 ms      Excellent
-  // <   5 ms      Extremely Good
-  // <  20 ms      Very Good
-  // <  50 ms      Good
-  // <  80 ms      Good to Fair
-  // < 100 ms      Fair
-  //
-  // As per: http://www.3rdechelon.net/jittercalc.asp
+  return jitter;
+};
+
+/**
+ * Calculates the severity based on the jitter
+ *Jitter quality is quantitative:
+ *
+ * Jitter Level     Acceptability
+ * <   1 ms      Excellent
+ * <   5 ms      Extremely Good
+ * <  20 ms      Very Good
+ * <  50 ms      Good
+ * <  80 ms      Good to Fair
+ * < 100 ms      Fair
+ *
+ * As per: http://www.3rdechelon.net/jittercalc.asp
+ *
+ * @param {number} jitterValue in ms.
+ * @return {SEV} Severity enum
+ */
+localModel.calculateJitterSeverity = (jitterValue) => {
   //
   // Adjusted for our scale:
   // SEV0 <= 20ms
@@ -286,20 +297,20 @@ localModel.calculateJitter = (data) => {
   const SEV1 = 50;
   const SEV2 = 80;
 
-  log.debug('Jitter calculated:', jitter);
+  log.debug('Jitter calculated:', jitterValue);
 
-  if (jitter <= SEV0) {
+  if (jitterValue <= SEV0) {
     return SEV.SEV0;
   }
 
-  if (jitter > SEV0 && jitter <= SEV1) {
+  if (jitterValue > SEV0 && jitterValue <= SEV1) {
     return SEV.SEV1;
   }
 
-  if (jitter > SEV1 && jitter <= SEV2) {
+  if (jitterValue > SEV1 && jitterValue <= SEV2) {
     return SEV.SEV2;
   }
-  if (jitter > SEV2) {
+  if (jitterValue > SEV2) {
     return SEV.SEV3;
   }
 };
