@@ -132,7 +132,7 @@ localModel.calculateQuality = () => {
     const baselineDiff = (((dataBaseline.high / dataBaseline.average) - 1) * 100).toFixed(2);
 
     log.info(`cq() :: id: ${pingTarget.id} spikeSev: ${spikeSeverity}`,
-      `jitterSev: ${jitterSeverity} Jitter Value: ${jitterValue}ms avg: ${dataBaseline.average.toFixed(2)}`,
+      `jitterSev: ${jitterSeverity} Jitter Value: ${jitterValue.toFixed(2)}ms avg: ${dataBaseline.average.toFixed(2)}`,
       'high:', dataBaseline.high.toFixed(2), 'low:', dataBaseline.low.toFixed(2),
       `(${baselineDiff}%)`);
 
@@ -243,6 +243,7 @@ localModel.calculateJitter = (data) => {
     return SEV.SEV0;
   }
 
+
   const totalDifference = data.reduce((total, pingTime, index) => {
     if (index === 0) {
       return 0;
@@ -258,7 +259,7 @@ localModel.calculateJitter = (data) => {
     }
 
     return diff;
-  });
+  }, 0);
 
   if (totalDifference === 0) {
     return SEV.SEV0;
