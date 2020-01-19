@@ -35,7 +35,7 @@ neopixel.init = (opts = {}) => {
 
   pixelState.brightness = Number(opts.brightness || 30);
 
-  pixelState.waitms = Number(opts.waitms || 40);
+  pixelState.waitms = Number(opts.waitms || 20);
   if (pixelState.waitms < 0) {
     pixelState.waitms = 0;
   }
