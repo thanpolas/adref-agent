@@ -11,6 +11,7 @@
 const { spawn } = require('child_process');
 
 const eventBus = require('../event-bus');
+const log = require('../logger');
 
 const piCommand = `${__dirname}/neopix.py`;
 
@@ -32,7 +33,7 @@ neopixel.init = (opts = {}) => {
   pixelState.pixels = opts.pixels || 8;
   pixelState.gamma = true;
 
-  pixelState.brightness = Number(opts.brightness || 100);
+  pixelState.brightness = Number(opts.brightness || 30);
 
   pixelState.waitms = Number(opts.waitms || 40);
   if (pixelState.waitms < 0) {
@@ -51,6 +52,19 @@ neopixel.init = (opts = {}) => {
     pixelState.brightness,
     pixelState.gamma,
   ]);
+
+
+  pixelState.child.stdout.on('data', (buffer) => {
+    log.info('neopixelInit() :: stdout:', buffer.toString());
+  });
+
+  pixelState.child.stderr.on('data', (buffer) => {
+    log.info('neopixelInit() :: stderr data:', buffer.toString());
+  });
+
+  pixelState.child.on('close', (code, signal) => {
+    log.info('neopixelInit() :: Closed:', code, signal);
+  });
 
   // Listen to system events
   eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
