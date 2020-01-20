@@ -12,8 +12,8 @@ const utils = module.exports = {};
  */
 utils.sleep = (ms) => {
   return new Promise((resolve) => {
-    setTimeout(ms, () => {
+    setTimeout(() => {
       resolve();
-    })
+    }, ms);
   });
-}
+};

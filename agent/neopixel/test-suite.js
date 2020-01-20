@@ -27,7 +27,7 @@ testSuite.localTestSuite = async () => {
  */
 testSuite._runActual = async () => {
   log.info('testSuite() :: Starting...');
-  const sleepTime = 2;
+  const sleepTime = 10000;
 
   log.info('testSuite() :: Internet Sev: 0');
   testSuite._pingUpdate(0, 0, 0);

@@ -21,11 +21,14 @@ const agent = module.exports = {};
 agent.start = async () => {
   const pingTargets = await agent.getPingTargets();
   let promises = [];
+  neopixel.init({
+    brightness: globals.brightness,
+  });
 
   if (process.argv[2] === 'test') {
     globals.TEST_MODE = true;
 
-    localTestSuite();
+    await localTestSuite();
   } else {
     agent.setupEventHandlers(pingTargets);
 
@@ -37,10 +40,6 @@ agent.start = async () => {
       return startPing(pingTarget);
     });
   }
-
-  neopixel.init({
-    brightness: globals.brightness,
-  });
 
   await Promise.all(promises);
 };
