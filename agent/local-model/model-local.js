@@ -111,9 +111,17 @@ localModel._checkLastSpike = (pingTarget) => {
 
   const storeLength = pingStore.length;
 
+  if (storeLength < 2) {
+    return;
+  }
+
   const lastPing = pingStore[storeLength - 1];
   const previousPing = pingStore[storeLength - 2];
 
+  // skip when ping timeout
+  if (!lastPing.ping_success && !previousPing.ping_success) {
+    return;
+  }
   if (lastPing.time < previousPing.time) {
     return;
   }
