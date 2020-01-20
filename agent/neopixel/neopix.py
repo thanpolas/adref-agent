@@ -154,7 +154,25 @@ def set_adref_led(target, state):
 
     strip.show()
 
+def process_spike(percent_diff):
+    """
+    Handles a spike on the last ping that happened
+    Will flash with blue for 1 second
+    """
+    global prev_state
+
+    colorWipe(strip, Color(0, 0, 255))
+    time.sleep(1000)
+
+    cur_state = prev_state
+    prev_state = 10
+    set_internet_state(cur_state)
+
+
 def set_internet_state(state):
+    """
+    Sets the LED state based on the internet's state
+    """
     global prev_state
     global blink_active
     color = get_color_from_state(state)
@@ -232,6 +250,9 @@ if __name__ == '__main__':
 
             if message['type'] == "ping_fail":
                 ping_fail(message["target"])
+
+            if message["type"] == "spike":
+                process_spike(message["percent_diff"])
 
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)

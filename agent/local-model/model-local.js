@@ -87,9 +87,46 @@ localModel.onPing = (pingTarget, pingData) => {
 
   pingStore.push(pingData);
 
+  localModel._checkLastSpike(pingTarget);
+
   // Retain buffer size
   if (pingStore.length > state.bufferSize) {
     pingStore.shift();
+  }
+};
+
+/**
+ * Checks if the last ping was a spike compared to the previous one.
+ *
+ * @param {Object} pingTarget Ping target object.
+ * @private
+ */
+localModel._checkLastSpike = (pingTarget) => {
+  if (pingTarget.id !== 'internet') {
+    return;
+  }
+
+  const { state } = localModel;
+  const pingStore = state.stores[pingTarget.id];
+
+  const storeLength = pingStore.length;
+
+  const lastPing = pingStore[storeLength - 1];
+  const previousPing = pingStore[storeLength - 2];
+
+  if (lastPing.time < previousPing.time) {
+    return;
+  }
+
+  const diff = lastPing.time - previousPing.time;
+  const percentDiff = diff / previousPing.time;
+
+  if (percentDiff > 0.3) {
+    const neopixelMessage = {
+      type: 'spike',
+      percent_diff: percentDiff,
+    };
+    eventBus.emit('update-neopixel', neopixelMessage);
   }
 };
 
