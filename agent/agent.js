@@ -18,6 +18,7 @@ const agent = module.exports = {};
  *
  */
 agent.start = async () => {
+
   const pingTargets = await agent.getPingTargets();
 
   agent.setupEventHandlers(pingTargets);
