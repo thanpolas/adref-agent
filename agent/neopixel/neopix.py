@@ -167,16 +167,20 @@ def process_spike(percent_diff):
     prev_state = 10
     set_internet_state(cur_state)
 
+def handle_internet_outage(state):
+    """
+    Handles the LEDs when internet is out (Sev: 4)
+    """
 
-def set_internet_state(state):
+def set_internet_state(internet_state):
     """
     Sets the LED state based on the internet's state
     """
     global prev_state
     global blink_active
-    color = get_color_from_state(state)
+    color = get_color_from_state(internet_state)
 
-    if state != prev_state:
+    if internet_state != prev_state:
         colorWipe(strip, Color(0, 0, 0))
 
     show_blink = False
@@ -194,17 +198,16 @@ def set_internet_state(state):
         show_blink = True
         blink_active = True
 
-    if state != prev_state:
+    if internet_state != prev_state:
         for i in range(rangeNum):
             strip.setPixelColor(i, color)
-
         strip.show()
 
         if show_blink:
             blink_thread = threading.Thread(target=blink_leds)
             blink_thread.start()
 
-    prev_state = state
+    prev_state = internet_state
 
 # Main loop:
 if __name__ == '__main__':
