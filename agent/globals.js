@@ -10,7 +10,6 @@ const yaml = require('yaml');
 
 const globals = module.exports = {};
 
-
 const userConfigFile = path.resolve(__dirname, '../../adref-config.yml');
 
 let userConfig = {};
@@ -22,10 +21,13 @@ if (fs.existsSync(userConfigFile)) {
 
 //
 //
-// Global Settings Start
+// Global Settings and configurations
 //
 
 globals.token = userConfig.token || 'osx_polas_dev';
+
+// Puts the system in test mode, no actual pings are performed.
+globals.TEST_MODE = false;
 
 // The API endpoint to submit to.
 globals.apiEndpoint = userConfig.apiEndpoint

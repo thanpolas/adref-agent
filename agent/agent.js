@@ -10,6 +10,7 @@ const apiModel = require('./model-api');
 const localModel = require('./local-model/model-local');
 const neopixel = require('../agent/neopixel/neopixel');
 const globals = require('./globals');
+const { localTestSuite } = require('./neopixel/test-suite');
 
 const agent = module.exports = {};
 
@@ -18,17 +19,24 @@ const agent = module.exports = {};
  *
  */
 agent.start = async () => {
-
   const pingTargets = await agent.getPingTargets();
+  let promises = [];
 
-  agent.setupEventHandlers(pingTargets);
+  if (process.argv[2] === 'test') {
+    globals.TEST_MODE = true;
 
-  apiModel.setup(pingTargets);
-  localModel.setup(pingTargets);
+    localTestSuite();
+  } else {
+    agent.setupEventHandlers(pingTargets);
 
-  const promises = pingTargets.map((pingTarget) => {
-    return startPing(pingTarget);
-  });
+    apiModel.setup(pingTargets);
+
+    localModel.setup(pingTargets);
+
+    promises = pingTargets.map((pingTarget) => {
+      return startPing(pingTarget);
+    });
+  }
 
   neopixel.init({
     brightness: globals.brightness,
