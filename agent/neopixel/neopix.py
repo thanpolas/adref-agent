@@ -10,7 +10,6 @@
 import sys
 import getpass
 import time
-from enum import Enum
 import threading
 import json
 try:
