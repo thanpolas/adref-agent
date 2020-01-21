@@ -10,7 +10,6 @@
 import sys
 import getpass
 import time
-from enum import Enum
 import threading
 import json
 try:
@@ -58,27 +57,42 @@ LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 #     LED_GAMMA = range(256)
 
 blink_active = False
+blink_targets = []
 prev_state = 10
 
 def blink_leds():
-    toggle = True
-    bleep_time = 1
     global blink_active
+    global blink_targets
+
+    toggle = True
+    bleep_time = 0.5
     while blink_active:
         if toggle:
-            colorWipe(strip, Color(0, 0, 0))
+            color = Color(0, 0, 0)
             toggle = False
-            time.sleep(bleep_time)
         else:
-            colorWipe(strip, Color(255, 0, 0))
+            color = Color(255, 0, 0)
             toggle = True
-            time.sleep(bleep_time)
+
+        targetLeds = []
+        for target in blink_targets:
+                if target == "internet":
+                    targetLeds.append(7)
+                if target == "gateway":
+                    targetLeds.append(3)
+                if target == "local":
+                    targetLeds.append(0)
+
+        for targetLed in targetLeds:
+            strip.setPixelColor(targetLed, color)
+
+        strip.show()
+        time.sleep(bleep_time)
 
 def setBrightness(strip, brightness, wait_ms=30):
     """Set overall brighness"""
     strip.setBrightness(brightness)
     strip.show()
-    time.sleep(wait_ms/1000.0)
 
 def colorWipe(strip, color, wait_ms = 0):
     """Wipe color across display a pixel at a time."""
@@ -139,55 +153,127 @@ def get_color_from_state(state):
 
     return color
 
-def set_adref_led(target, state):
+def handle_keep_alive(alive_type):
+    """
+    Performs a nice FX to indicate the agent is alive
+    """
+    global prev_state
+
+    # Wait time in seconds
+    wait_time = 80/1000
+
+    # Only work when state is all green
+    if (prev_state != 0):
+        return
+
+    if alive_type == "pingpong":
+        color_green = get_color_from_state(0)
+        color_wave = Color(0, 80, 0)
+        num_pixels = strip.numPixels()
+        for i in range(num_pixels):
+            strip.setPixelColor(i, color_wave)
+            if i > 0:
+                strip.setPixelColor(i - 1, color_green)
+            strip.show()
+            time.sleep(wait_time)
+        for i in range(num_pixels, 0, -1):
+            index_use = i - 1
+            strip.setPixelColor(index_use, color_wave)
+            if index_use < num_pixels:
+                strip.setPixelColor(index_use + 1, color_green)
+            strip.show()
+            time.sleep(wait_time)
+
+        colorWipe(strip, color_green)
+
+def set_target_led(target, state):
     if target == "local":
         leds = [0]
     if target == "gateway":
         leds = [3]
     if target == "internet":
-        leds = [6]
+        leds = [7]
 
     color = get_color_from_state(state)
 
     for i in leds:
         strip.setPixelColor(i, color)
 
-    strip.show()
+def process_spike(percent_diff):
+    """
+    Handles a spike on the last ping that happened
+    Will flash with blue for 1 second
+    """
+    global prev_state
 
-def set_internet_state(state):
+    colorWipe(strip, Color(0, 0, 255))
+    time.sleep(1)
+
+    cur_state = prev_state
+    prev_state = 10
+    set_internet_state(cur_state)
+
+def handle_internet_outage(state):
+    """
+    Handles the LEDs when internet is out (Sev: 4)
+    """
+    global prev_state
+    global blink_targets
+    global blink_active
+
+    internet_state = int(state["internet"])
+    if internet_state != prev_state:
+        colorWipe(strip, Color(0, 0, 0))
+        prev_state = internet_state
+
+    blink_targets.clear()
+
+    # To be here, means internet is out
+    blink_targets.append("internet")
+
+    gw_state = int(state["gateway"])
+    if (gw_state == 4):
+        blink_targets.append("gateway")
+    else:
+        set_target_led("gateway", gw_state)
+
+    local_state = int(state["local"])
+    if (local_state == 4):
+        blink_targets.append("local")
+    else:
+        set_target_led("local", local_state)
+
+    blink_active = True
+    blink_thread = threading.Thread(target=blink_leds)
+    blink_thread.start()
+
+def set_internet_state(internet_state):
+    """
+    Sets the LED state based on the internet's state
+    """
     global prev_state
     global blink_active
-    color = get_color_from_state(state)
+    color = get_color_from_state(internet_state)
 
-    if state != prev_state:
+    if internet_state != prev_state:
         colorWipe(strip, Color(0, 0, 0))
 
-    show_blink = False
     blink_active = False
 
     rangeNum = 8
-    if state == 1:
+    if internet_state == 1:
         rangeNum = 6
-    if state == 2:
+    if internet_state == 2:
         rangeNum = 4
-    if state == 3:
+    if internet_state == 3:
         rangeNum = 2
-    if state == 4:
-        rangeNum = 8
-        show_blink = True
-        blink_active = True
 
-    if state != prev_state:
+    if internet_state != prev_state:
         for i in range(rangeNum):
             strip.setPixelColor(i, color)
-
         strip.show()
 
-        if show_blink:
-            blink_thread = threading.Thread(target=blink_leds)
-            blink_thread.start()
-
-    prev_state = state
+    prev_state = internet_state
 
 # Main loop:
 if __name__ == '__main__':
@@ -228,10 +314,20 @@ if __name__ == '__main__':
 
             if message['type'] == "set_led":
                 internetState = int(message["state"]["internet"])
-                set_internet_state(internetState)
+
+                if (internetState == 4):
+                    handle_internet_outage(message["state"])
+                else:
+                    set_internet_state(internetState)
 
             if message['type'] == "ping_fail":
                 ping_fail(message["target"])
+
+            if message["type"] == "spike":
+                process_spike(message["percent_diff"])
+
+            if message["type"] == "keep-alive":
+                handle_keep_alive(message["keep_alive_type"])
 
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)

@@ -73,6 +73,19 @@ neopixel.init = (opts = {}) => {
   // Listen to system events
   eventBus.on('update-neopixel', neopixel.onStatusUpdate.bind(null, pixelState));
   eventBus.on('ping-fail', neopixel.onStatusUpdate.bind(null, pixelState));
+  eventBus.on('shutdown', neopixel._shutdown.bind(null, pixelState));
+};
+
+/**
+ * Handles shutdown.
+ *
+ * @param {Object} pixelState State object.
+ * @private
+ */
+neopixel._shutdown = (pixelState) => {
+  if (pixelState.child) {
+    pixelState.child.kill('SIGTERM');
+  }
 };
 
 /**

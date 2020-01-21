@@ -50,7 +50,19 @@ the driver installed is to use the Unicorn HAT drivers install script... see the
 Pimoroni Getting Started with Unicorn HAT</a> page.
 
     curl -sS get.pimoroni.com/unicornhat | bash
-    
+
+## LED Control
+
+### Testing the LEDs
+
+Make sure you have stopped any background processes of the agent, and then invoke the agent with the "test" argument like so:
+
+```
+sudo npm start test
+```
+
+This will put the agent into LED test mode and will test all the possible states.
+
 ## Releasing
 
 Just push to master for now ¯\_(ツ)_/¯.
