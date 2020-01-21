@@ -129,6 +129,10 @@ ping.invokePing = async (id, pingArgs) => {
       reject(err);
     });
     ping.child.on('close', (code, signal) => {
+      if (ping.shutdown) {
+        return;
+      }
+
       log.info('invokePing() :: exited with code:', code, 'signal:', signal,
         '. Attempting restart...');
 
