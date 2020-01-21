@@ -159,30 +159,32 @@ def handle_keep_alive(alive_type):
     """
     global prev_state
 
+    # Wait time in seconds
+    wait_time = 80/1000
+
     # Only work when state is all green
     if (prev_state != 0):
         return
 
     if alive_type == "pingpong":
         color_green = get_color_from_state(0)
-        color_wave = Color(0, 180, 0)
+        color_wave = Color(0, 80, 0)
         num_pixels = strip.numPixels()
         for i in range(num_pixels):
             strip.setPixelColor(i, color_wave)
             if i > 0:
                 strip.setPixelColor(i - 1, color_green)
             strip.show()
-            time.sleep(40)
+            time.sleep(wait_time)
         for i in range(num_pixels, 0, -1):
-            strip.setPixelColor(i, color_wave)
-            if i < num_pixels:
-                strip.setPixelColor(i + 1, color_green)
+            index_use = i - 1
+            strip.setPixelColor(index_use, color_wave)
+            if index_use < num_pixels:
+                strip.setPixelColor(index_use + 1, color_green)
             strip.show()
-            time.sleep(40)
-        strip.setPixelColor(0, color_green)
+            time.sleep(wait_time)
 
-
-
+        colorWipe(strip, color_green)
 
 def set_target_led(target, state):
     if target == "local":
