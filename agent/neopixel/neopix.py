@@ -153,6 +153,37 @@ def get_color_from_state(state):
 
     return color
 
+def handle_keep_alive(alive_type):
+    """
+    Performs a nice FX to indicate the agent is alive
+    """
+    global prev_state
+
+    # Only work when state is all green
+    if (prev_state != 0):
+        return
+
+    if alive_type == "pingpong":
+        color_green = get_color_from_state(0)
+        color_wave = Color(0, 180, 0)
+        num_pixels = strip.numPixels()
+        for i in range(num_pixels):
+            strip.setPixelColor(i, color_wave)
+            if i > 0:
+                strip.setPixelColor(i - 1, color_green)
+            strip.show()
+            time.sleep(40)
+        for i in range(num_pixels, 0, -1):
+            strip.setPixelColor(i, color_wave)
+            if i < num_pixels:
+                strip.setPixelColor(i + 1, color_green)
+            strip.show()
+            time.sleep(40)
+        strip.setPixelColor(0, color_green)
+
+
+
+
 def set_target_led(target, state):
     if target == "local":
         leds = [0]
@@ -292,6 +323,9 @@ if __name__ == '__main__':
 
             if message["type"] == "spike":
                 process_spike(message["percent_diff"])
+
+            if message["type"] == "keep-alive":
+                handle_keep_alive(message["keep_alive_type"])
 
         except (EOFError, SystemExit):  # hopefully always caused by us sigint'ing the program
             sys.exit(0)
