@@ -69,6 +69,12 @@ Just push to master for now ¯\_(ツ)_/¯.
 
 ## Release History
 
+- **v0.0.3**, *21 Jan 2020* :: LED Complete
+    - All neopixel LED States implemented and tested.
+    - Handles ping timeouts and spikes.
+    - Handles internet outages.
+    - Clean shutdown.
+    - Fixes and tweaks.
 - **v0.0.2**, *17 Jan 2020* :: First working version of node.js agent.
 
 ## License
