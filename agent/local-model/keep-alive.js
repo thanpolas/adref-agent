@@ -4,11 +4,13 @@
 
 const eventBus = require('../event-bus');
 const log = require('../logger');
-const globals = require('../globals');
 const { getRandomInt } = require('../utils');
 
 
 const keepAlive = module.exports = {};
+
+/** @type {Object?} Reference of the setTimeout */
+keepAlive._timeoutRef = null;
 
 /**
  * Initialize Keep alive.
@@ -17,7 +19,20 @@ const keepAlive = module.exports = {};
 keepAlive.init = () => {
   log.info('Initializing Keep Alive...');
   const sleepTime = keepAlive._getSleepTime();
-  setTimeout(keepAlive._runAlive, sleepTime);
+  keepAlive._timeoutRef = setTimeout(keepAlive._runAlive, sleepTime);
+
+  eventBus.on('shutdown', keepAlive._shutdown);
+};
+
+/**
+ * Handles agent shutdown.
+ *
+ * @private
+ */
+keepAlive._shutdown = () => {
+  if (keepAlive._timeoutRef) {
+    clearTimeout(keepAlive._timeoutRef);
+  }
 };
 
 /**
@@ -34,7 +49,7 @@ keepAlive._runAlive = () => {
     keep_alive_type: 'pingpong',
   });
 
-  setTimeout(keepAlive._runAlive, sleepTime);
+  keepAlive._timeoutRef = setTimeout(keepAlive._runAlive, sleepTime);
 };
 
 /**

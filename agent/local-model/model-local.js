@@ -64,6 +64,17 @@ localModel.setup = (pingTargets) => {
   // Start State Watcher
   state.stateWatcherLoop = setInterval(localModel.calculateQuality,
     globals.localWatcherInterval);
+
+  eventBus.on('shutdown', localModel._shutdown);
+};
+
+localModel._shutdown = () => {
+  // shortcut assign
+  const { state } = localModel;
+
+  if (state.stateWatcherLoop) {
+    clearInterval(state.stateWatcherLoop);
+  }
 };
 
 /**

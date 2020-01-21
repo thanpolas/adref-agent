@@ -1,6 +1,7 @@
 /**
  * @fileoverview The main agent operation handler.
  */
+const process = require('process');
 
 const { startPing } = require('./ping-command');
 const eventBus = require('./event-bus');
@@ -12,6 +13,7 @@ const neopixel = require('../agent/neopixel/neopixel');
 const globals = require('./globals');
 const { localTestSuite } = require('./neopixel/test-suite');
 const keepAlive = require('./local-model/keep-alive');
+const log = require('./logger');
 
 const agent = module.exports = {};
 
@@ -20,6 +22,8 @@ const agent = module.exports = {};
  *
  */
 agent.start = async () => {
+  agent._setupNodeHandlers();
+
   const pingTargets = await agent.getPingTargets();
   let promises = [];
   neopixel.init({
@@ -112,4 +116,34 @@ agent.onStdout = (pingTarget, message) => {
   }
 
   eventBus.emit(`${pingTarget.id}-ping`, pingTarget, pingData);
+};
+
+/**
+ * Setup Node exit event listeners.
+ *
+ * @private
+ */
+agent._setupNodeHandlers = () => {
+  // do something when app is closing
+  process.on('exit', agent._exitHandler);
+
+  // catches ctrl+c event
+  process.on('SIGINT', agent._exitHandler);
+
+  // catches "kill pid" (for example: nodemon restart)
+  process.on('SIGUSR1', agent._exitHandler);
+  process.on('SIGUSR2', agent._exitHandler);
+
+  // catches uncaught exceptions
+  process.on('uncaughtException', agent._exitHandler);
+};
+
+/**
+ * Note exit handler.
+ *
+ * @private
+ */
+agent._exitHandler = () => {
+  log.info('Node exit, shutting down...');
+  eventBus.emit('shutdown');
 };

@@ -37,17 +37,21 @@ ping.startPing = async (pingTarget) => {
 
   await ping.invokePing(pingTarget.id, pingArgs)
     .catch(ping._invokePingErrorHandler);
-
 };
+
 
 /**
- * Stop a ping command.
+ * Handles shutdown.
  *
- * @param {string} id The unique id.
+ * @param {child_process.child} child The child process.
+ * @private
  */
-ping.stopPing = (id) => {
-
+ping._shutdown = (child) => {
+  if (child) {
+    child.kill('SIGTERM');
+  }
 };
+
 
 /**
  * Prepare the ping arguments when on OSX.
@@ -123,6 +127,9 @@ ping.invokePing = async function(id, pingArgs) {
 
       eventBus.emit(id + '-on_close', 'true');
     });
+
+    // listen for shutdown event
+    eventBus.on('shutdown', ping._shutdown.bind(null, child));
   });
 };
 
