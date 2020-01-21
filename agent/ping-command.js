@@ -33,6 +33,9 @@ ping.startPing = async (pingTarget) => {
   }
 
   eventBus.on(`${pingTarget.id}-on_close`, async () => {
+    if (ping.shutdown) {
+      return;
+    }
     // ping exited, restart.
     await ping.invokePing(pingTarget.id, pingArgs)
       .catch(ping._invokePingErrorHandler.bind(null, pingTarget.id, pingArgs));
