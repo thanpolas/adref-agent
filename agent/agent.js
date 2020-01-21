@@ -11,6 +11,7 @@ const localModel = require('./local-model/model-local');
 const neopixel = require('../agent/neopixel/neopixel');
 const globals = require('./globals');
 const { localTestSuite } = require('./neopixel/test-suite');
+const keepAlive = require('./local-model/keep-alive');
 
 const agent = module.exports = {};
 
@@ -39,6 +40,8 @@ agent.start = async () => {
     promises = pingTargets.map((pingTarget) => {
       return startPing(pingTarget);
     });
+
+    keepAlive.init();
   }
 
   await Promise.all(promises);
