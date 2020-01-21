@@ -187,13 +187,13 @@ def set_internet_state(internet_state):
     blink_active = False
 
     rangeNum = 8
-    if state == 1:
+    if internet_state == 1:
         rangeNum = 6
-    if state == 2:
+    if internet_state == 2:
         rangeNum = 4
-    if state == 3:
+    if internet_state == 3:
         rangeNum = 2
-    if state == 4:
+    if internet_state == 4:
         rangeNum = 8
         show_blink = True
         blink_active = True
