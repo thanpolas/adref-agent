@@ -19,7 +19,8 @@
     "node": ">=10.x <11"
   },
   "scripts": {
-    "start": "node ./agent/"
+    "start": "node ./agent/",
+    "release": "release-it"
   },
   "dependencies": {
     "axios": "^0.19.1",
@@ -31,6 +32,12 @@
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jest": "22.17.0",
     "eslint-plugin-jsdoc": "15.9.10",
-    "eslint-plugin-security": "1.4.0"
+    "eslint-plugin-security": "1.4.0",
+    "release-it": "^12.4.3"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    }
   }
 }
