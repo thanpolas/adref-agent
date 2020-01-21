@@ -3,17 +3,17 @@
  */
 const process = require('process');
 
-const { startPing } = require('./ping-command');
+const { startPing } = require('../ping/ping-command');
 const eventBus = require('./event-bus');
 
-const { processPingResults } = require('./ping-library');
-const apiModel = require('./model-api');
-const localModel = require('./local-model/model-local');
-const neopixel = require('../agent/neopixel/neopixel');
+const { processPingResults } = require('../ping/ping-library');
+const apiModel = require('../conn/api-model');
+const localModel = require('../local-model/model-local');
+const neopixel = require('../neopixel/neopixel');
 const globals = require('./globals');
-const { localTestSuite } = require('./neopixel/test-suite');
-const keepAlive = require('./local-model/keep-alive');
-const log = require('./logger');
+const { localTestSuite } = require('../neopixel/test-suite');
+const keepAlive = require('../local-model/keep-alive');
+const log = require('../utils/logger');
 
 const agent = module.exports = {};
 

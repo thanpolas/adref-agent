@@ -5,10 +5,10 @@
 // eslint-disable-next-line security/detect-child-process
 const { spawn } = require('child_process');
 
-const log = require('./logger');
-const eventBus = require('./event-bus');
-const { isOsx } = require('./globals');
-const { sleep } = require('./utils');
+const log = require('../utils/logger');
+const eventBus = require('../core/event-bus');
+const { isOsx } = require('../core/globals');
+const { sleep } = require('../utils/utils');
 
 const ping = module.exports = {};
 

@@ -2,9 +2,9 @@
  * @fileoverview Ping store for the API, buffers up to a defined number of pings
  *   and then submits them to the API.
  */
-const eventBus = require('./event-bus');
+const eventBus = require('../core/event-bus');
 const { submit } = require('./api-submit');
-const globals = require('./globals');
+const globals = require('../core/globals');
 
 const apiModel = module.exports = {};
 

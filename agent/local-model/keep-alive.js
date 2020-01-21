@@ -2,9 +2,9 @@
  * @fileoverview Performs a keep alive fx on the pixels to indicate the agent is alive.
  */
 
-const eventBus = require('../event-bus');
-const log = require('../logger');
-const { getRandomInt } = require('../utils');
+const eventBus = require('../core/event-bus');
+const log = require('../utils/logger');
+const { getRandomInt } = require('../utils/utils');
 
 
 const keepAlive = module.exports = {};

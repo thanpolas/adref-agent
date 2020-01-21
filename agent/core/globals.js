@@ -10,7 +10,7 @@ const yaml = require('yaml');
 
 const globals = module.exports = {};
 
-const userConfigFile = path.resolve(__dirname, '../../adref-config.yml');
+const userConfigFile = path.resolve(__dirname, '../../../adref-config.yml');
 
 let userConfig = {};
 
