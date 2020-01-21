@@ -132,12 +132,12 @@ ping.invokePing = async function(id, pingArgs) {
  * @param {Error} error Error object.
  * @private
  */
-ping._invokePingErrorHandler = (error) => {
+ping._invokePingErrorHandler = async (error) => {
   log.error('_invokePingErrorHandler() :: Failed to recurse and launch invokePing.',
     'Error:', error);
 
-  // sleep for 2 seconds and retry
-  sleep(2000);
+  // sleep and retry
+  await sleep(2000);
   ping.invokePing(pingArgs, id)
     .catch(ping._invokePingErrorHandler);
 };
