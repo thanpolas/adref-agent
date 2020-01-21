@@ -77,7 +77,6 @@ def setBrightness(strip, brightness, wait_ms=30):
     """Set overall brighness"""
     strip.setBrightness(brightness)
     strip.show()
-    time.sleep(wait_ms/1000.0)
 
 def colorWipe(strip, color, wait_ms = 0):
     """Wipe color across display a pixel at a time."""
@@ -161,7 +160,7 @@ def process_spike(percent_diff):
     global prev_state
 
     colorWipe(strip, Color(0, 0, 255))
-    time.sleep(1000)
+    time.sleep(1)
 
     cur_state = prev_state
     prev_state = 10
