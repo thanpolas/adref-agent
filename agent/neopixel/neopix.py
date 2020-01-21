@@ -77,13 +77,10 @@ def blink_leds():
         targetLeds = []
         for target in blink_targets:
                 if target == "internet":
-                    targetLeds.append(6)
                     targetLeds.append(7)
                 if target == "gateway":
-                    targetLeds.append(4)
                     targetLeds.append(3)
                 if target == "local":
-                    targetLeds.append(1)
                     targetLeds.append(0)
 
         for targetLed in targetLeds:
@@ -162,7 +159,7 @@ def set_target_led(target, state):
     if target == "gateway":
         leds = [3]
     if target == "internet":
-        leds = [6]
+        leds = [7]
 
     color = get_color_from_state(state)
 
@@ -187,23 +184,31 @@ def handle_internet_outage(state):
     """
     Handles the LEDs when internet is out (Sev: 4)
     """
+    global prev_state
     global blink_targets
     global blink_active
+
+    internet_state = int(state["internet"])
+    if internet_state != prev_state:
+        colorWipe(strip, Color(0, 0, 0))
+        prev_state = internet_state
 
     blink_targets.clear()
 
     # To be here, means internet is out
     blink_targets.append("internet")
 
-    if (state["gateway"] == 4):
+    gw_state = int(state["gateway"])
+    if (gw_state == 4):
         blink_targets.append("gateway")
     else:
-        set_target_led("gateway", state["gateway"])
+        set_target_led("gateway", gw_state)
 
-    if (state["local"] == 4):
+    local_state = int(state["local"])
+    if (local_state == 4):
         blink_targets.append("local")
     else:
-        set_target_led("local", state["local"])
+        set_target_led("local", local_state)
 
     blink_active = True
     blink_thread = threading.Thread(target=blink_leds)
@@ -220,7 +225,6 @@ def set_internet_state(internet_state):
     if internet_state != prev_state:
         colorWipe(strip, Color(0, 0, 0))
 
-    show_blink = False
     blink_active = False
 
     rangeNum = 8
