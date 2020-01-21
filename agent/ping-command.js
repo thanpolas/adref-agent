@@ -12,6 +12,9 @@ const { sleep } = require('./utils');
 
 const ping = module.exports = {};
 
+ping.child = null;
+ping.shutdown = false;
+
 /**
  * Start a ping and stream the results via eventBus.
  *
@@ -37,18 +40,21 @@ ping.startPing = async (pingTarget) => {
 
   await ping.invokePing(pingTarget.id, pingArgs)
     .catch(ping._invokePingErrorHandler.bind(null, pingTarget.id, pingArgs));
+
+  // listen for shutdown event
+  eventBus.on('shutdown', ping._shutdown);
 };
 
 
 /**
  * Handles shutdown.
  *
- * @param {child_process.child} child The child process.
  * @private
  */
-ping._shutdown = (child) => {
-  if (child) {
-    child.kill('SIGTERM');
+ping._shutdown = () => {
+  ping.shutdown = true;
+  if (ping.child) {
+    ping.child.kill('SIGTERM');
   }
 };
 
@@ -91,17 +97,17 @@ ping.preparePingArgumentsLinux = (pingTarget) => {
  *
  * @param {string} id A unique identifier.
  * @param {Array} pingArgs Arguments for ping command.
- * @return {Promise(string)} A promise with the ping's output.
+ * @return {Promise<string>} A promise with the ping's output.
  */
 ping.invokePing = async (id, pingArgs) => {
   return new Promise((resolve, reject) => {
     log.info('invokePing() :: Invoking ping with args:', pingArgs);
 
-    const child = spawn('ping', pingArgs);
+    ping.child = spawn('ping', pingArgs);
 
     let resolved = false;
 
-    child.stdout.on('data', (buffer) => {
+    ping.child.stdout.on('data', (buffer) => {
       if (!resolved) {
         resolved = true;
         resolve();
@@ -112,22 +118,19 @@ ping.invokePing = async (id, pingArgs) => {
       eventBus.emit(emitKey, buffer.toString());
     });
 
-    child.stderr.on('data', (buffer) => {
+    ping.child.stderr.on('data', (buffer) => {
       log.info('invokePing() :: stderr data:', buffer.toString());
     });
-    child.on('error', (err) => {
+    ping.child.on('error', (err) => {
       log.warn('invokePing() Error:', err);
       reject(err);
     });
-    child.on('close', (code, signal) => {
+    ping.child.on('close', (code, signal) => {
       log.info('invokePing() :: exited with code:', code, 'signal:', signal,
         '. Attempting restart...');
 
       eventBus.emit(`${id}-on_close`, 'true');
     });
-
-    // listen for shutdown event
-    eventBus.on('shutdown', ping._shutdown.bind(null, child));
   });
 };
 
@@ -140,6 +143,9 @@ ping.invokePing = async (id, pingArgs) => {
  * @private
  */
 ping._invokePingErrorHandler = async (id, pingArgs, error) => {
+  if (ping.shutdown) {
+    return;
+  }
   log.error('_invokePingErrorHandler() :: Failed to recurse and launch invokePing.',
     'Error:', error);
 
