@@ -57,21 +57,40 @@ LED_BRIGHTNESS = min(255,int(max(0,float(sys.argv[3])) * 255 / 100))
 #     LED_GAMMA = range(256)
 
 blink_active = False
+blink_targets = []
 prev_state = 10
 
 def blink_leds():
-    toggle = True
-    bleep_time = 1
     global blink_active
+    global blink_targets
+
+    toggle = True
+    bleep_time = 0.5
     while blink_active:
         if toggle:
-            colorWipe(strip, Color(0, 0, 0))
+            color = Color(0, 0, 0)
             toggle = False
-            time.sleep(bleep_time)
         else:
-            colorWipe(strip, Color(255, 0, 0))
+            color = Color(255, 0, 0)
             toggle = True
-            time.sleep(bleep_time)
+
+        targetLeds = []
+        for target in blink_targets:
+                if target == "internet":
+                    targetLeds.append(6)
+                    targetLeds.append(7)
+                if target == "gateway":
+                    targetLeds.append(4)
+                    targetLeds.append(3)
+                if target == "local":
+                    targetLeds.append(1)
+                    targetLeds.append(0)
+
+        for targetLed in targetLeds:
+            strip.setPixelColor(targetLed, color)
+
+        strip.show()
+        time.sleep(bleep_time)
 
 def setBrightness(strip, brightness, wait_ms=30):
     """Set overall brighness"""
@@ -137,7 +156,7 @@ def get_color_from_state(state):
 
     return color
 
-def set_adref_led(target, state):
+def set_target_led(target, state):
     if target == "local":
         leds = [0]
     if target == "gateway":
@@ -149,8 +168,6 @@ def set_adref_led(target, state):
 
     for i in leds:
         strip.setPixelColor(i, color)
-
-    strip.show()
 
 def process_spike(percent_diff):
     """
@@ -170,6 +187,27 @@ def handle_internet_outage(state):
     """
     Handles the LEDs when internet is out (Sev: 4)
     """
+    global blink_targets
+    global blink_active
+
+    blink_targets.clear()
+
+    # To be here, means internet is out
+    blink_targets.append("internet")
+
+    if (state["gateway"] == 4):
+        blink_targets.append("gateway")
+    else:
+        set_target_led("gateway", state["gateway"])
+
+    if (state["local"] == 4):
+        blink_targets.append("local")
+    else:
+        set_target_led("local", state["local"])
+
+    blink_active = True
+    blink_thread = threading.Thread(target=blink_leds)
+    blink_thread.start()
 
 def set_internet_state(internet_state):
     """
@@ -192,19 +230,11 @@ def set_internet_state(internet_state):
         rangeNum = 4
     if internet_state == 3:
         rangeNum = 2
-    if internet_state == 4:
-        rangeNum = 8
-        show_blink = True
-        blink_active = True
 
     if internet_state != prev_state:
         for i in range(rangeNum):
             strip.setPixelColor(i, color)
         strip.show()
-
-        if show_blink:
-            blink_thread = threading.Thread(target=blink_leds)
-            blink_thread.start()
 
     prev_state = internet_state
 
@@ -247,7 +277,11 @@ if __name__ == '__main__':
 
             if message['type'] == "set_led":
                 internetState = int(message["state"]["internet"])
-                set_internet_state(internetState)
+
+                if (internetState == 4):
+                    handle_internet_outage(message["state"])
+                else:
+                    set_internet_state(internetState)
 
             if message['type'] == "ping_fail":
                 ping_fail(message["target"])
