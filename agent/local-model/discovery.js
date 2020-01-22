@@ -4,7 +4,7 @@
 
 const os = require('os');
 
-const globals = require('../globals');
+const globals = require('../core/globals');
 
 const discovery = module.exports = {};
 

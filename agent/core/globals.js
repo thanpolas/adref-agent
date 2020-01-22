@@ -10,7 +10,7 @@ const yaml = require('yaml');
 
 const globals = module.exports = {};
 
-const userConfigFile = path.resolve(__dirname, '../../adref-config.yml');
+const userConfigFile = path.resolve(__dirname, '../../../adref-config.yml');
 
 let userConfig = {};
 
@@ -46,3 +46,9 @@ globals.apiSubmitPingsInterval = userConfig.apiSubmitPingsInterval || 300;
 globals.localWatcherInterval = userConfig.localWatcherInterval || 5000;
 
 globals.isOsx = os.platform() === 'darwin';
+
+// The internet IP to ping
+globals.targetInternetIp = '8.8.8.8';
+
+// Interval time in ms to keep-alive the LEDs.
+globals.keepAliveTime = 2 * 60 * 1000; // 2 mins

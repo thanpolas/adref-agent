@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "axios": "^0.19.1",
+    "default-gateway": "^5.0.5",
     "yaml": "^1.7.2"
   },
   "devDependencies": {

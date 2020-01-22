@@ -1,9 +1,9 @@
 /**
  * @fileoverview Ping store for the local use and handling of the LED's.
  */
-const eventBus = require('../event-bus');
-const log = require('../logger');
-const globals = require('../globals');
+const eventBus = require('../core/event-bus');
+const log = require('../utils/logger');
+const globals = require('../core/globals');
 const { baseline } = require('./baseline.lib');
 
 const localModel = module.exports = {};

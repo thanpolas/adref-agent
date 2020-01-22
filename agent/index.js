@@ -2,7 +2,7 @@
  * Ping Agent, launches and streams ping commands.
  */
 
-const { start } = require('./agent');
+const { start } = require('./core/agent');
 
 const boot = async () => {
   await start();

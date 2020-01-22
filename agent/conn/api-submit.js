@@ -4,8 +4,8 @@
 
 const axios = require('axios');
 
-const globals = require('./globals');
-const log = require('./logger');
+const globals = require('../core/globals');
+const log = require('../utils/logger');
 
 const apiSubmit = module.exports = {};
 

@@ -3,17 +3,18 @@
  */
 const process = require('process');
 
-const { startPing } = require('./ping-command');
+const { startPing } = require('../ping/ping-command');
 const eventBus = require('./event-bus');
 
-const { processPingResults } = require('./ping-library');
-const apiModel = require('./model-api');
-const localModel = require('./local-model/model-local');
-const neopixel = require('../agent/neopixel/neopixel');
+const { processPingResults } = require('../ping/ping-library');
+const apiModel = require('../conn/api-model');
+const localModel = require('../local-model/model-local');
+const neopixel = require('../neopixel/neopixel');
 const globals = require('./globals');
-const { localTestSuite } = require('./neopixel/test-suite');
-const keepAlive = require('./local-model/keep-alive');
-const log = require('./logger');
+const { localTestSuite } = require('../neopixel/test-suite');
+const keepAlive = require('../local-model/keep-alive');
+const log = require('../utils/logger');
+const networkInfo = require('../network/network-info');
 
 const agent = module.exports = {};
 
@@ -26,13 +27,19 @@ agent.start = async () => {
 
   const pingTargets = await agent.getPingTargets();
   let promises = [];
-  neopixel.init({
-    brightness: globals.brightness,
-  });
+
+  if (process.argv[2] !== 'noled') {
+    // Start Python Library interfacing with Neopixel LED
+    neopixel.init({
+      brightness: globals.brightness,
+    });
+  }
 
   if (process.argv[2] === 'test') {
     globals.TEST_MODE = true;
+  }
 
+  if (globals.TEST_MODE) {
     await localTestSuite();
   } else {
     agent.setupEventHandlers(pingTargets);
@@ -59,21 +66,25 @@ agent.start = async () => {
 agent.getPingTargets = async () => {
   const pingTargets = [];
 
+  const targets = await networkInfo.getInfo();
+
   pingTargets.push({
     id: 'local',
-    pingIp: '192.168.1.1',
+    pingIp: targets.local,
   });
 
   pingTargets.push({
     id: 'gateway',
-    pingIp: '100.96.185.33',
+    pingIp: targets.gateway,
   });
 
   pingTargets.push({
     id: 'internet',
-    pingIp: '8.8.8.8',
+    pingIp: globals.targetInternetIp,
   });
 
+  log.info(`getPingTargets() :: Ping targets discovered. Local: ${targets.local}`
+    + ` Gateway: ${targets.gateway} Internet: ${globals.targetInternetIp}`);
 
   return pingTargets;
 };

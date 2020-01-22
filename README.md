@@ -63,6 +63,14 @@ sudo npm start test
 
 This will put the agent into LED test mode and will test all the possible states.
 
+### Running Without LEDs
+
+For testing on your local you may not want to actually launch the LED library, you can do that with:
+
+```
+npm start noled
+```
+
 ## Releasing
 
 Just push to master for now ¯\_(ツ)_/¯.

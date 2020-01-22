@@ -1,10 +1,7 @@
 /**
- * @fileOverview Ping library.
+ * @fileoverview Ping library.
+ *
  */
-const spawn = require('child_process').spawn;
-
-const log = require('./logger');
-const globals = require('./globals');
 
 const pingLib = module.exports = {};
 
@@ -33,7 +30,7 @@ pingLib.processPingResults = function (pingLine) {
 
   const parts = pingLine.split(' ');
 
-  pingObj.bytes = parts[0];
+  [pingObj.bytes] = parts;
 
   // IP has a colon at the end so remove last char.
   pingObj.target_ip = parts[3].slice(0, -1);
@@ -80,5 +77,4 @@ pingLib.isValidPingLine = (pingLine) => {
   }
 
   return true;
-
 };
