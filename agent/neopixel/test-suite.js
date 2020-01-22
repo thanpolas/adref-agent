@@ -2,9 +2,9 @@
  * @fileoverview Performs a test suite of all the commands sent to the python library.
  */
 
-const log = require('../logger');
-const eventBus = require('../event-bus');
-const { sleep } = require('../utils');
+const log = require('../utils/logger');
+const eventBus = require('../core/event-bus');
+const { sleep } = require('../utils/utils');
 
 const testSuite = module.exports = {};
 

@@ -10,8 +10,8 @@
 // eslint-disable-next-line security/detect-child-process
 const { spawn } = require('child_process');
 
-const eventBus = require('../event-bus');
-const log = require('../logger');
+const eventBus = require('../core/event-bus');
+const log = require('../utils/logger');
 
 const piCommand = `${__dirname}/neopix.py`;
 
