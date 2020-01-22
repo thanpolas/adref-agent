@@ -49,3 +49,6 @@ globals.isOsx = os.platform() === 'darwin';
 
 // The internet IP to ping
 globals.targetInternetIp = '8.8.8.8';
+
+// Interval time in ms to keep-alive the LEDs.
+globals.keepAliveTime = 2 * 60 * 1000; // 2 mins
