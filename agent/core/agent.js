@@ -14,6 +14,7 @@ const globals = require('./globals');
 const { localTestSuite } = require('../neopixel/test-suite');
 const keepAlive = require('../local-model/keep-alive');
 const log = require('../utils/logger');
+const networkInfo = require('../network/network-info');
 
 const agent = module.exports = {};
 
@@ -59,21 +60,25 @@ agent.start = async () => {
 agent.getPingTargets = async () => {
   const pingTargets = [];
 
+  const targets = await networkInfo.getInfo();
+
   pingTargets.push({
     id: 'local',
-    pingIp: '192.168.1.1',
+    pingIp: targets.local,
   });
 
   pingTargets.push({
     id: 'gateway',
-    pingIp: '100.96.185.33',
+    pingIp: targets.gateway,
   });
 
   pingTargets.push({
     id: 'internet',
-    pingIp: '8.8.8.8',
+    pingIp: globals.targetInternetIp,
   });
 
+  log.info(`getPingTargets() :: Ping targets discovered. Local: ${targets.local}`
+    + ` Gateway: ${targets.gateway} Internet: ${globals.targetInternetIp}`);
 
   return pingTargets;
 };

@@ -46,3 +46,6 @@ globals.apiSubmitPingsInterval = userConfig.apiSubmitPingsInterval || 300;
 globals.localWatcherInterval = userConfig.localWatcherInterval || 5000;
 
 globals.isOsx = os.platform() === 'darwin';
+
+// The internet IP to ping
+globals.targetInternetIp = '8.8.8.8';
