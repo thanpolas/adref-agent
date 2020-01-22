@@ -27,13 +27,19 @@ agent.start = async () => {
 
   const pingTargets = await agent.getPingTargets();
   let promises = [];
-  neopixel.init({
-    brightness: globals.brightness,
-  });
+
+  if (process.argv[2] !== 'noled') {
+    // Start Python Library interfacing with Neopixel LED
+    neopixel.init({
+      brightness: globals.brightness,
+    });
+  }
 
   if (process.argv[2] === 'test') {
     globals.TEST_MODE = true;
+  }
 
+  if (globals.TEST_MODE) {
     await localTestSuite();
   } else {
     agent.setupEventHandlers(pingTargets);
