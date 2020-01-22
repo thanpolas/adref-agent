@@ -60,11 +60,18 @@ netInfo.getGateway = async () => {
 
   const lines = traceStdout.split('\n');
 
-  if (lines.length !== 3) {
+  let validLength = 3;
+  let rightLine = 1;
+  if (!global.isOsx) {
+    validLength = 4;
+    rightLine = 2;
+  }
+
+  if (lines.length !== validLength) {
     return null;
   }
 
-  const gatewayLine = lines[1];
+  const gatewayLine = lines[rightLine];
 
   const words = gatewayLine.split(' ');
 
