@@ -18,8 +18,12 @@ do
     # Delete symlink
     rm AGENT_SYMLINK
 
-    ln -s `cat $NEW_AGENT_FILE` z
+    ln -s `cat $NEW_AGENT_FILE` $AGENT_SYMLINK
+
+    rm $NEW_AGENT_FILE
+
     AGENT_PID=start_agent()
+
   fi
   sleep 10
 done
