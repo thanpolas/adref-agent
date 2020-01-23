@@ -12,7 +12,6 @@ PID=$!
 
 while true
 do
-  echo "In the loop, PID: $PID"
   if test -f "$NEW_AGENT_FILE"; then
     # New Update found, kill existing agent and replace symlink.
     sudo pkill -9 -P $PID
