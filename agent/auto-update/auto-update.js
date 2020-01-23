@@ -17,7 +17,7 @@ const autoUpdate = module.exports = {};
 /**
  * A stand alone module that cheks for updates, downloads and builds them.
  *
- * @param {boolean} nowait set to true to not wait a while.
+ * @param {boolean=} nowait set to true to not wait a while.
  */
 autoUpdate.init = async (nowait) => {
   const state = {
