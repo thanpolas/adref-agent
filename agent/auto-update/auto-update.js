@@ -25,16 +25,20 @@ autoUpdate.init = async (nowait) => {
     intervalRef: null,
   };
 
-  eventBus.on('shutdown', autoUpdate.onShutdown);
+  eventBus.on('shutdown', autoUpdate.onShutdown.bind(null, state));
 
   if (!nowait) {
     // Start after a while...
     await sleep(10000);
   }
 
-  state.hasStarted = true;
+  log.info('Auto Updater Service Starting...');
 
-  log.info('Auto Updater starting...');
+  // check on boot before interval.
+  await autoUpdate.checkForUpdate();
+
+  // Set interval
+  state.hasStarted = true;
   state.intervalRef = setInterval(autoUpdate.checkForUpdate,
     globals.checkUpdateInterval);
 };
@@ -92,7 +96,13 @@ autoUpdate.getRepoTags = async () => {
 
 /**
  * Handle shutdown.
+ *
+ * @param {Object} localState The local state.
  */
-autoUpdate.onShutdown = () => {
+autoUpdate.onShutdown = (localState) => {
+  if (!localState.hasStarted) {
+    return;
+  }
 
+  clearInterval(localState.intervalRef);
 };
