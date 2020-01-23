@@ -52,3 +52,6 @@ globals.targetInternetIp = '8.8.8.8';
 
 // Interval time in ms to keep-alive the LEDs.
 globals.keepAliveTime = 2 * 60 * 1000; // 2 mins
+
+// Every how often to check for an update
+globals.checkUpdateInterval = 60 * 60 * 1000; // 1 hour
