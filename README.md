@@ -83,6 +83,9 @@ Install the [release-it package from this link](https://github.com/release-it/re
 
 ## Release History
 
+- **v0.0.5**, *23 Jan 2020* :: Auto Updated done
+    - Will now auto-update based on github tag releases.
+    - Cleaned up directory structure.
 - **v0.0.3**, *21 Jan 2020* :: LED Complete
     - All neopixel LED States implemented and tested.
     - Handles ping timeouts and spikes.
