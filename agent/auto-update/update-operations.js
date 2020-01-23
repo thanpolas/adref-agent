@@ -4,24 +4,15 @@
  * @fileoverview Handles auto update operations, downloading unziping, building.
  */
 
-const url = require('url');
 const util = require('util');
 const path = require('path');
-const fs = require('fs');
-
-const readdir = util.promisify(fs.readdir);
 
 // eslint-disable-next-line security/detect-child-process
 const exec = util.promisify(require('child_process').exec);
-const https = require('https');
 
 const tmp = require('tmp');
 
-const pack = require('../../package.json');
-const eventBus = require('../core/event-bus');
 const log = require('../utils/logger');
-const { sleep } = require('../utils/utils');
-const globals = require('../core/globals');
 
 const updateOps = module.exports = {};
 
@@ -34,11 +25,16 @@ const updateOps = module.exports = {};
 updateOps.updateAgent = async (tagObj) => {
   const tmpObj = await updateOps._downloadAgent(tagObj.tarball_url);
 
-  const targetDirectory = await updateOps._unzipAgent(tmpObj);
+  const extractedDirectory = await updateOps._unzipAgent(tmpObj);
 
-  // await updateOps.buildAgent(targetDirectory);
+  if (!extractedDirectory) {
+    log.info('updateAgent() :: Failed to extract, giving up.');
+    return;
+  }
 
-  log.info('updateAgent() :: All done. New Agent in:', targetDirectory);
+  await updateOps._buildAgent(extractedDirectory);
+
+  log.info('updateAgent() :: All done. New Agent in:', extractedDirectory);
 };
 
 /**
@@ -50,48 +46,13 @@ updateOps.updateAgent = async (tagObj) => {
  */
 updateOps._downloadAgent = async (downloadUrl) => {
   const tmpObj = tmp.fileSync();
-  console.log(downloadUrl);
 
   const command = `wget -O ${tmpObj.name} ${downloadUrl}`;
   log.info('_downloadAgent() :: Executing:', command);
-  const res = await exec(command);
 
-  console.log('RES:', res);
+  await exec(command);
 
   return tmpObj;
-
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(tmpObj.name);
-    const urlObj = url.parse(downloadUrl);
-
-    const httpOpts = {
-      protocol: 'https:',
-      host: urlObj.hostname,
-      path: urlObj.path,
-      headers: {
-        'User-Agent': `adref-agent client v${pack.version}`,
-      },
-    };
-    const req = https.get(httpOpts, (response, err) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      response.pipe(file);
-      file.on('finish', () => {
-        file.close(resolve.bind(null, tmpObj));
-      });
-    });
-
-    req.on('error', (err) => { // Handle errors
-      log.error('_downloadAgent() :: Error:', err);
-      reject(err);
-    });
-
-    req.on('response', (data) => {
-      console.log('data:', data.read());
-    });
-  });
 };
 
 /**
@@ -104,23 +65,38 @@ updateOps._downloadAgent = async (downloadUrl) => {
 updateOps._unzipAgent = async (tmpObj) => {
   const targetDirectory = updateOps._getTargetDirectory();
   log.info('_unzipAgent() :: Target Directory:', targetDirectory);
+
   try {
-    await updateOps._nukeDestination(targetDirectory);
+    const res = await exec(`tar -zxvf ${tmpObj.name} -C ${targetDirectory}`);
 
-    try {
-      await exec(`mkdir ${targetDirectory}`);
-    } catch (ex) {
-      log.info('_unzipAgent() :: Failed to create directory:', targetDirectory,
-        'proceeding anyway...');
-    }
-    console.log('Extracting:', tmpObj.name);
-    await exec(`tar -zxvf ${tmpObj.name} -C ${targetDirectory}`);
+    const extractedDirectory = updateOps._getExtractedDirectory(res, targetDirectory);
 
-    return targetDirectory;
+    log.info('_unzipAgent() :: Successfully extracted at:', extractedDirectory);
+
+    return extractedDirectory;
   } catch (ex) {
     log.error('_unzipAgent() :: Failed to unzip:', ex);
     return null;
   }
+};
+
+/**
+ * Gets the directory where the new adref-agent was extracted.
+ *
+ * @param {Object} res The result from the exec command execution.
+ * @param {string} targetDirectory The target directory where to extract.
+ * @return {string} The full path to the extracted folder.
+ * @private
+ */
+updateOps._getExtractedDirectory = (res, targetDirectory) => {
+  const output = res.stderr;
+  const lines = output.split('\n');
+
+  const [firstLine] = lines;
+
+  const parts = firstLine.split(' ');
+
+  return path.join(targetDirectory, parts[1]);
 };
 
 /**
@@ -132,34 +108,19 @@ updateOps._unzipAgent = async (tmpObj) => {
 updateOps._getTargetDirectory = () => {
   const rootDir = path.resolve(__dirname, '../../../');
 
-  return path.join(rootDir, 'adref-agent-new/');
+  return rootDir;
 };
 
 /**
- * Checks if directory exists and deletes it safely.
+ * Build the extracted agent.
  *
- * @param {string} targetDirectory The target directory.
+ * @param {string} extractedDirectory Full path to the extracted folder.
  * @return {Promise}
  * @private
  */
-updateOps._nukeDestination = async (targetDirectory) => {
-  try {
-    await readdir(targetDirectory);
+updateOps._buildAgent = async (extractedDirectory) => {
+  log.info('_buildAgent() :: Starting to build the agent...');
+  const command = `cd ${extractedDirectory}; npm ci`;
 
-    // At this point if the directory did not exist "readdir()" would
-    // throw and we would catch it...
-    // Being here means the directory exists, check if we can read
-    // package.json there
-    const packageFile = path.join(targetDirectory, 'package.json');
-    // eslint-disable-next-line import/no-dynamic-require
-    const packTest = require(packageFile);
-
-    // At this point the pack is there, check it
-    if (packTest.name === 'adref-ping-agent') {
-      // it's ours, delete
-      await exec(`rm -rf ${targetDirectory}`);
-    }
-  } catch (ex) {
-    // no action, means folder is not there.
-  }
+  await exec(command);
 };
