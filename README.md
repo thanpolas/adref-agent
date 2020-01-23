@@ -229,7 +229,8 @@ that controls the launch of the adref-agent (`~/adref/run.sh`).
 
 ## Release History
 
-- **v0.0.7**, *23 Jan 2020* :: Auto Updated done
+- **v1.0.0**, *23 Jan 2020* :: It works.
+- **v0.0.7**, *23 Jan 2020* :: Auto Updat done
     - Will now auto-update based on github tag releases.
     - Cleaned up directory structure.
 - **v0.0.3**, *21 Jan 2020* :: LED Complete
