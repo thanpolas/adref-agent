@@ -96,14 +96,21 @@ updateOps._unzipAgent = async (tmpObj) => {
  * @private
  */
 updateOps._getExtractedDirectory = (res, targetDirectory) => {
-  const output = res.stderr;
-  const lines = output.split('\n');
+  let extractedFolder = '';
+  if (globals.isOsx) {
+    const output = res.stderr;
+    const lines = output.split('\n');
+    const [firstLine] = lines;
+    const parts = firstLine.split(' ');
+    extractedFolder = parts[1];
+  } else {
+    const output = res.stdout;
+    const lines = output.split('\n');
+    const [firstLine] = lines;
+    extractedFolder = firstLine;
+  }
 
-  const [firstLine] = lines;
-
-  const parts = firstLine.split(' ');
-
-  return path.join(targetDirectory, parts[1]);
+  return path.join(targetDirectory, extractedFolder);
 };
 
 /**
