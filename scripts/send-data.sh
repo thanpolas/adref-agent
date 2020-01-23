@@ -1,5 +1,10 @@
 #!/bin/bash
 
+##
+## Original prototype for pinging written in bash script.
+## Jan 2019
+##
+
 ### Set Operational Variables
 
 ## API VALUES

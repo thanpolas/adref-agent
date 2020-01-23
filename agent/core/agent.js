@@ -15,6 +15,7 @@ const { localTestSuite } = require('../neopixel/test-suite');
 const keepAlive = require('../local-model/keep-alive');
 const log = require('../utils/logger');
 const networkInfo = require('../network/network-info');
+const autoUpdate = require('../auto-update/auto-update');
 
 const agent = module.exports = {};
 
@@ -27,6 +28,8 @@ agent.start = async () => {
 
   const pingTargets = await agent.getPingTargets();
   let promises = [];
+
+  autoUpdate.init();
 
   if (process.argv[2] !== 'noled') {
     // Start Python Library interfacing with Neopixel LED
