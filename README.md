@@ -174,7 +174,7 @@ sudo systemctl restart adref.service
 sudo systemctl stop adref.service
 ```
 
-## Wiring NeoPixel to Raspberry
+## Wiring the NeoPixel to Raspberry
 
 * Pi 5V to NeoPixel 5V
 * Pi GND to NeoPixel GND
@@ -182,7 +182,50 @@ sudo systemctl stop adref.service
 
 ![Neopixel Wiring](https://cdn-learn.adafruit.com/assets/assets/000/063/929/medium640/led_strips_raspi_NeoPixel_bb.jpg?1539981142)
 
-[Photo Curtesy of Adafruit's article on Neopixel wiring](https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring)
+[Photo Curtesy of Adafruit's article on Neopixel wiring](https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring).
+
+## What Does the Adref Agent Actually Do
+
+### Ping Targets
+
+Adref will discover and ping three targets for you:
+
+* **Local** Your local model, typically found in `192.168.1.1`.
+* **Gateway** Your internet gateway IP, this would be the second hop when
+  you perform a traceroute, right after your local router.
+* **Internet** An internet IP close to you.
+
+### API Submission
+
+In frequent ocassions (currently every 300 pings) the Adref Agent will submit 
+your ping times to the Adref Service where they are stored so you can access 
+them at a later time.
+
+### How Pings Are Performed
+
+The Adref Agent launches 3 separate Child Processes running the unix ping 
+command indefinetely. The stdout of each ping command is streamed to the
+agent who then processes and emits them for the rest of the local agent's
+services to digest.
+
+### Neopixel LED Control
+
+Adafruit has only released low-leverl libraries for the Neopixel on Python.
+Therefore a Child Process is launched with the python library that manages
+the LEDs. Communication is one-way by exchanging JSON packets through stdin.
+
+### Keep Alive Operation
+
+Every 2 minutes a keep-alive effect happens on the LEDs to indicate the agent is
+alive. Today there is only one effect, the "ping-pong" which performs a 
+ping-pong like movement of a darker LED across the 8 leds and back.
+
+### Auto Updates
+
+The agent will query Github every hour for a new version based on Git Tags
+pushed to the main repository. When a new version is found it will be 
+downloaded, extracted and built before it will get launched by the bash script
+that controls the launch of the adref-agent (`~/adref/run.sh`).
 
 ## Release History
 
