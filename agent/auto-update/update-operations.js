@@ -13,6 +13,7 @@ const exec = util.promisify(require('child_process').exec);
 const tmp = require('tmp');
 
 const log = require('../utils/logger');
+const globals = require('../core/globals');
 
 const updateOps = module.exports = {};
 
@@ -33,6 +34,12 @@ updateOps.updateAgent = async (tagObj) => {
   }
 
   await updateOps._buildAgent(extractedDirectory);
+
+
+  const targetNewAgentFile = path.join(updateOps._getTargetDirectory(),
+    globals.NEW_AGENT_FILE);
+
+  await exec(`echo "${extractedDirectory}" > ${targetNewAgentFile}`);
 
   log.info('updateAgent() :: All done. New Agent in:', extractedDirectory);
 };

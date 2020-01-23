@@ -29,6 +29,9 @@ globals.token = userConfig.token || 'osx_polas_dev';
 // Puts the system in test mode, no actual pings are performed.
 globals.TEST_MODE = false;
 
+// filename of where to save the new adref folder location.
+globals.NEW_AGENT_FILE = 'new-adref.txt';
+
 // The API endpoint to submit to.
 globals.apiEndpoint = userConfig.apiEndpoint
   || 'https://adref.projects.sirodoht.com/pings_two/';
