@@ -1,0 +1,5 @@
+# The API token to use on submission.
+token: set-your-token
+
+# A value between 0 and 100 for the brightness of the LEDs
+brightness: 40

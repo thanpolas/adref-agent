@@ -145,6 +145,9 @@ localModel._checkLastSpike = (pingTarget) => {
       type: 'spike',
       percent_diff: percentDiff,
     };
+    log.info('_checkLastSpit() :: Spike detected, percent: '
+      + `${percentDiff.toFixed(2)}% Last Ping: ${lastPing.time}ms`
+      + `Previous Ping: ${previousPing.time}ms`);
     eventBus.emit('update-neopixel', neopixelMessage);
   }
 };

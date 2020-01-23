@@ -122,6 +122,7 @@ agent.onStdout = (pingTarget, message) => {
 
     // Emit ping-fail only for internet
     if (pingTarget.id === 'internet') {
+      log.info('agent.onStdout() :: Ping timeout for internet Iface');
       eventBus.emit('ping-fail', {
         type: 'ping_fail',
         target: pingTarget.id,
