@@ -64,8 +64,8 @@ autoUpdate.checkForUpdate = async () => {
 
   if (semver.lt(thisVer, latestVer)) {
     log.info(`checkForUpdate() :: New version found: ${latestVer}`);
+    await updateOps.updateAgent(lastTag);
   }
-  await updateOps.updateAgent(lastTag);
 };
 
 /**
