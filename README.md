@@ -73,7 +73,13 @@ npm start noled
 
 ## Releasing
 
-Just push to master for now ¯\_(ツ)_/¯.
+Type on CLI:
+
+```
+release-it
+```
+
+Install the [release-it package from this link](https://github.com/release-it/release-it).
 
 ## Release History
 
