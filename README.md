@@ -47,7 +47,7 @@ This step is important for auto-update to work, you have to create a symbolic
 link from the name `adref-agent` to the downloaded package:
 
 ```
-ls -s adref-agent-first adref-agent
+ln -s adref-agent-first adref-agent
 ```
 
 ### 4. Build The Agent
