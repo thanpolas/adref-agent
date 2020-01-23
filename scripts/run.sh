@@ -5,7 +5,7 @@
 
 NEW_AGENT_FILE=/home/pi/adref/adref-agent/new-adref.txt
 
-AGENT_SYMLINK=/home/pi/adref/adref-agent
+AGENT_SYMLINK=/home/pi/adref/adref-agent/adref-agent
 
 AGENT_PID=start_agent()
 
