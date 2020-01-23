@@ -35,8 +35,8 @@ autoUpdate.init = async (nowait) => {
   state.hasStarted = true;
 
   log.info('Auto Updater starting...');
-  // state.intervalRef = setInterval(autoUpdate.checkForUpdate, globals.checkUpdateInterval)
-  await autoUpdate.checkForUpdate();
+  state.intervalRef = setInterval(autoUpdate.checkForUpdate,
+    globals.checkUpdateInterval);
 };
 
 /**
@@ -66,7 +66,6 @@ autoUpdate.checkForUpdate = async () => {
     log.info(`checkForUpdate() :: New version found: ${latestVer}`);
   }
   await updateOps.updateAgent(lastTag);
-  console.log('done');
 };
 
 /**
