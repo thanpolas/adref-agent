@@ -1,6 +1,6 @@
 {
   "name": "adref-ping-agent",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./agent/",
   "description": "A ping agent for Adref",
   "homepage": "https://github.com/thanpolas/adref-agent",
