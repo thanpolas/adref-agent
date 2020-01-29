@@ -34,7 +34,7 @@ globals.NEW_AGENT_FILE = 'new-adref.txt';
 
 // The API endpoint to submit to.
 globals.apiEndpoint = userConfig.apiEndpoint
-  || 'https://adref.projects.sirodoht.com/pings_two/';
+  || 'https://adref.projects.sirodoht.com/pings/';
 
 // How many pings to sample for determining spike severity
 globals.spikePingSample = 5;
