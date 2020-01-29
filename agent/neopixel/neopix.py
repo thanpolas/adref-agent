@@ -160,7 +160,7 @@ def handle_keep_alive(alive_type):
     global prev_state
 
     # Wait time in seconds
-    wait_time = 80/1000
+    wait_time = 0.04
 
     # Only work when state is all green
     if (prev_state != 0):

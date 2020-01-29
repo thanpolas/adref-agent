@@ -27,11 +27,33 @@ testSuite.localTestSuite = async () => {
  */
 testSuite._runActual = async () => {
   log.info('testSuite() :: Starting...');
-  const sleepTime = 10000;
+  const sleepTime = 2000;
 
   log.info('testSuite() :: Internet Sev: 0');
   testSuite._pingUpdate(0, 0, 0);
   await sleep(sleepTime);
+
+  log.info('testSuite() :: Keep Alive 1');
+  eventBus.emit('update-neopixel', {
+    type: 'keep-alive',
+    keep_alive_type: 'pingpong',
+  });
+  await sleep(sleepTime);
+
+  log.info('testSuite() :: Keep Alive 2');
+  eventBus.emit('update-neopixel', {
+    type: 'keep-alive',
+    keep_alive_type: 'pingpong',
+  });
+  await sleep(sleepTime);
+
+  log.info('testSuite() :: Keep Alive 3');
+  eventBus.emit('update-neopixel', {
+    type: 'keep-alive',
+    keep_alive_type: 'pingpong',
+  });
+  await sleep(sleepTime);
+
   log.info('testSuite() :: Internet Sev: 1');
   testSuite._pingUpdate(0, 0, 1);
   await sleep(sleepTime);
