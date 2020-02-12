@@ -226,7 +226,7 @@ def handle_internet_outage(state):
         colorWipe(strip, Color(0, 0, 0))
         prev_state = internet_state
 
-    blink_targets.clear()
+    blink_targets = []
 
     # To be here, means internet is out
     blink_targets.append("internet")
