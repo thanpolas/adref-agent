@@ -229,6 +229,8 @@ that controls the launch of the adref-agent (`~/adref/run.sh`).
 
 ## Release History
 
+- **v1.0.2**, *12 Feb 2020*
+    - Fixed case when there is internet outage, how the LEDs render.
 - **v1.0.1**, *29 Jan 2020*
     - Fixed keep-alive pingpong fx.
     - New API endpoing.
