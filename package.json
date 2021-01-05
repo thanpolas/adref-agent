@@ -23,7 +23,7 @@
     "release": "release-it"
   },
   "dependencies": {
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "default-gateway": "^5.0.5",
     "github-api": "^3.3.0",
     "semver": "^7.1.1",
